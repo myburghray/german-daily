@@ -1,5 +1,5 @@
 {
-  "2026-10-29": {
+  "2026-10-30": {
     "hint": "Akzeptanz in einer Bibliothek",
     "words": [
       "Lesen",
@@ -18,7 +18,7 @@
       "Lesen"
     ]
   },
-  "2026-10-30": {
+  "2026-10-31": {
     "hint": "Zerbrechlichkeit bei Stürzen",
     "words": [
       "Kokosnuss",
@@ -29,12 +29,12 @@
       "Fußball"
     ],
     "answer": [
-      "Ei",
-      "Tasse",
-      "Kokosnuss",
-      "Tasche",
+      "Lego-Stein",
       "Fußball",
-      "Lego-Stein"
+      "Tasche",
+      "Kokosnuss",
+      "Tasse",
+      "Ei"
     ]
   },
   "2026-11-01": {
@@ -48,12 +48,12 @@
       "Beleidigen"
     ],
     "answer": [
-      "Beleidigen",
-      "Lügen",
-      "Unterbrechen",
-      "Gähnen",
+      "Komplimente machen",
       "Lächeln",
-      "Komplimente machen"
+      "Gähnen",
+      "Unterbrechen",
+      "Lügen",
+      "Beleidigen"
     ]
   }
 }
