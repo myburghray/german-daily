@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spektrum — Daily German Puzzle</title>
+  <style>
+    :root {font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#24302d;background:#f6f7f3}
+    *{box-sizing:border-box}body{margin:0;padding:24px 14px}.app{max-width:780px;margin:20px auto;background:#fff;border:1px solid #dfe5dd;border-radius:22px;padding:clamp(18px,4vw,32px);box-shadow:0 10px 35px #1c362109}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px}h1{font-size:clamp(27px,5vw,36px);margin:0;letter-spacing:-1px}.eyebrow,.section-title{font-size:12px;text-transform:uppercase;letter-spacing:.1em;font-weight:750;color:#6c7b73}.eyebrow{margin:5px 0 0}.logo{font-size:27px;background:#eff2ed;border-radius:15px;padding:11px} .intro{background:#f1f4ee;padding:18px;border-radius:14px;margin-top:22px}.intro h2{font-size:17px;margin:0 0 7px}.intro p{margin:0 0 12px;line-height:1.5;color:#516058}.hint{font-weight:700;margin-top:12px;padding-top:11px;border-top:1px solid #d7dfd4}button{font:inherit;cursor:pointer;border:1px solid #cad5c9;border-radius:10px;padding:12px;background:white;color:#26332a}button:hover:not(:disabled){background:#eef5e9}button:disabled{cursor:default;opacity:.48}.hint-btn{width:100%}.game{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:23px}.section-title{margin:0 0 12px}.bank{display:grid;gap:9px}.word{min-height:55px;font-weight:650;font-size:15px}.word.used{background:#f3f5f1;color:#8a978b}.spectrum{display:flex;flex-direction:column;gap:7px}.end{color:#62756a;font-size:12px;font-weight:750;display:flex;gap:5px;align-items:center}.slot-row{display:flex;gap:9px;align-items:stretch}.rail{width:4px;flex:none;border-radius:5px;background:#a5b6a7}.slot{min-height:55px;width:100%;text-align:left;padding:10px 12px;font-size:14px;font-weight:650;background:#fff}.slot.filled{background:#f0f4ed}.slot.correct{border-color:#5f9f74;background:#e7f5e9}.slot .index{color:#a3aca1;font-weight:400}.slot .remove{float:right;color:#8a978b}.actions{display:flex;gap:10px;margin-top:22px}.primary{background:#285f43;border-color:#285f43;color:white;flex:1;font-weight:750}.primary:hover:not(:disabled){background:#1c4b33}.secondary{min-width:100px}#feedback{margin-top:14px;border-radius:12px;background:#eff3ec;padding:15px;line-height:1.5}#feedback[hidden],#hint[hidden]{display:none}.subtext{color:#5e7162;font-size:13px}footer{font-size:12px;color:#728075;margin-top:20px}@media(max-width:440px){.game{gap:12px}.app{padding:15px}.word,.slot{font-size:12px;padding:9px 6px}.slot{min-height:65px}.word{min-height:65px}.slot .remove{font-size:10px}.rail{width:3px}}
+  </style>
+</head>
+<body>
+<main class="app">
+  <header><div><h1>Spektrum</h1><p class="eyebrow">30/10</p></div><div class="logo" aria-hidden="true">🇩🇪</div></header>
+  <section class="intro"><h2>What's the hidden connection?</h2><p>Arrange the six German words along a mystery continuum. Think about what they might have in common, then test your theory.</p><button type="button" id="hintButton" class="hint-btn">💡 Hint</button><div id="hint" class="hint" hidden>💡 Akzeptanz in einer Bibliothek</div></section>
+  <div class="game">
+    <section><p class="section-title">Word bank</p><div id="bank" class="bank"></div></section>
+    <section><div class="spectrum"><div class="end">↑ MOST</div><div id="slots" class="spectrum"></div><div class="end">↓ LEAST</div></div></section>
+  </div>
+  <div id="feedback" role="status" aria-live="polite" hidden></div>
+  <div class="actions"><button type="button" class="primary" id="checkButton">Check</button><button type="button" class="secondary" id="resetButton">↻ Reset</button></div>
+  <footer>Choose a word to place it in the lowest empty slot. Click a placed word to remove it. </footer>
+</main>
+<script>
+  // Change these two arrays to create your own puzzles.
+  const words = ['Lesen', 'Klavier spielen', 'Hunde ausführen', 'Studieren', 'Videospiel', 'Wordle'];
+  const answerBottomToTop = ['Hunde ausführen', 'Klavier spielen', 'Videospiel', 'Wordle', 'Studieren', 'Lesen'];
+  let placed = []; // first word is the bottom of the continuum
+  let attempts = 0;
+  let solved = false;
+  const bank = document.getElementById('bank');
+  const slots = document.getElementById('slots');
+  const check = document.getElementById('checkButton');
+  const feedback = document.getElementById('feedback');
+  const hint = document.getElementById('hint');
+  const hintButton = document.getElementById('hintButton');
+  function render() {
+    bank.replaceChildren();
+    for (const word of words) {
+      const btn = document.createElement('button');
+      btn.type='button'; btn.className='word' + (placed.includes(word)?' used':'');
+      btn.textContent=(placed.includes(word)?'✓ ':'')+word;
+      btn.disabled=solved||placed.includes(word);
+      btn.addEventListener('click',()=>{placed.push(word);clearFeedback();render()});
+      bank.append(btn);
+    }
+    slots.replaceChildren();
+    for (let index=5; index>=0; index--) {
+      const row=document.createElement('div');row.className='slot-row';
+      const rail=document.createElement('div');rail.className='rail';
+      const btn=document.createElement('button');btn.type='button';
+      btn.className='slot'+(placed[index]?' filled':'')+(solved?' correct':'');
+      if (placed[index]) {
+        const label=document.createElement('span');label.textContent=placed[index];btn.append(label);
+        if(!solved){const x=document.createElement('span');x.className='remove';x.textContent='✕';btn.append(x)}
+        btn.disabled=solved;
+        btn.setAttribute('aria-label',solved?placed[index]:'Remove '+placed[index]);
+        btn.addEventListener('click',()=>{if(!solved){placed.splice(index,1);clearFeedback();render()}});
+      } else {btn.disabled=true}
+      row.append(rail,btn);slots.append(row);
+    }
+    check.disabled=solved||placed.length!==6;
+  }
+  function clearFeedback(){feedback.hidden=true;feedback.textContent=''}
+  hintButton.addEventListener('click',()=>{hint.hidden=false;hintButton.hidden=true});
+  check.addEventListener('click',()=>{
+    attempts++;
+    const correct=placed.every((w,i)=>w===answerBottomToTop[i]);
+    feedback.hidden=false;
+    if(correct){solved=true;hint.hidden=false;hintButton.hidden=true;
+      feedback.replaceChildren();
+      const title=document.createElement('strong');title.textContent='✓ You solved the mystery!';
+      const detail=document.createElement('div');detail.className='subtext';detail.textContent=`Akzeptanz in einer Bibliothek · Solved in ${attempts} ${attempts===1?'attempt':'attempts'}.`;
+      feedback.append(title,detail);
+    } else feedback.textContent='Not quite! Try a different order.';
+    render();
+  });
+  document.getElementById('resetButton').addEventListener('click',()=>{placed=[];attempts=0;solved=false;hint.hidden=true;hintButton.hidden=false;clearFeedback();render()});
+  render();
+</script>
+</body>
+</html>
