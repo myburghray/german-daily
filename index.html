@@ -7,7 +7,7 @@
   <style>
     :root {font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#24302d;background:#f6f7f3}
     *{box-sizing:border-box}body{margin:0;padding:24px 14px}.app{max-width:780px;margin:20px auto;background:#fff;border:1px solid #dfe5dd;border-radius:22px;padding:clamp(18px,4vw,32px);box-shadow:0 10px 35px #1c362109}
-    header{display:flex;align-items:center;justify-content:space-between;gap:16px}h1{font-size:clamp(27px,5vw,36px);margin:0;letter-spacing:-1px}.eyebrow,.section-title{font-size:12px;text-transform:uppercase;letter-spacing:.1em;font-weight:750;color:#6c7b73}.eyebrow{margin:5px 0 0}.logo{font-size:27px;background:#eff2ed;border-radius:15px;padding:11px} .intro{background:#f1f4ee;padding:18px;border-radius:14px;margin-top:22px}.intro h2{font-size:17px;margin:0 0 7px}.intro p{margin:0 0 12px;line-height:1.5;color:#516058}.hint{font-weight:700;margin-top:12px;padding-top:11px;border-top:1px solid #d7dfd4}button{font:inherit;cursor:pointer;border:1px solid #cad5c9;border-radius:10px;padding:12px;background:white;color:#26332a}button:hover:not(:disabled){background:#eef5e9}button:disabled{cursor:default;opacity:.48}.hint-btn{width:100%}.game{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:23px}.section-title{margin:0 0 12px}.bank{display:grid;gap:9px}.word{min-height:55px;font-weight:650;font-size:15px}.word.used{background:#f3f5f1;color:#8a978b}.spectrum{display:flex;flex-direction:column;gap:7px}.end{color:#62756a;font-size:12px;font-weight:750;display:flex;gap:5px;align-items:center}.slot-row{display:flex;gap:9px;align-items:stretch}.rail{width:4px;flex:none;border-radius:5px;background:#a5b6a7}.slot{min-height:55px;width:100%;text-align:left;padding:10px 12px;font-size:14px;font-weight:650;background:#fff}.slot.filled{background:#f0f4ed}.slot.correct{border-color:#5f9f74;background:#e7f5e9}.slot .index{color:#a3aca1;font-weight:400}.slot .remove{float:right;color:#8a978b}.actions{display:flex;gap:10px;margin-top:22px}.primary{background:#285f43;border-color:#285f43;color:white;flex:1;font-weight:750}.primary:hover:not(:disabled){background:#1c4b33}.secondary{min-width:100px}#feedback{margin-top:14px;border-radius:12px;background:#eff3ec;padding:15px;line-height:1.5}#feedback[hidden],#hint[hidden]{display:none}.subtext{color:#5e7162;font-size:13px}footer{font-size:12px;color:#728075;margin-top:20px}@media(max-width:440px){.game{gap:12px}.app{padding:15px}.word,.slot{font-size:12px;padding:9px 6px}.slot{min-height:65px}.word{min-height:65px}.slot .remove{font-size:10px}.rail{width:3px}}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px}h1{font-size:clamp(27px,5vw,36px);margin:0;letter-spacing:-1px}.eyebrow,.section-title{font-size:12px;text-transform:uppercase;letter-spacing:.1em;font-weight:750;color:#6c7b73}.eyebrow{margin:5px 0 0}.logo{font-size:27px;background:#eff2ed;border-radius:15px;padding:11px} .intro{background:#f1f4ee;padding:18px;border-radius:14px;margin-top:22px}.intro h2{font-size:17px;margin:0 0 7px}.intro p{margin:0 0 12px;line-height:1.5;color:#516058}.hint{font-weight:700;margin-top:12px;padding-top:11px;border-top:1px solid #d7dfd4}button{font:inherit;cursor:pointer;border:1px solid #cad5c9;border-radius:10px;padding:12px;background:white;color:#26332a}button:hover:not(:disabled){background:#eef5e9}button:disabled{cursor:default;opacity:.48}.hint-btn{width:100%}.game{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:23px}.section-title{margin:0 0 12px}.bank{display:grid;gap:9px}.word{min-height:55px;font-weight:650;font-size:15px}.word.used{background:#f3f5f1;color:#8a978b}.spectrum{display:flex;flex-direction:column;gap:7px}.end{color:#62756a;font-size:12px;font-weight:750;display:flex;gap:5px;align-items:center}.slot-row{display:flex;gap:9px;align-items:stretch}.rail{width:4px;flex:none;border-radius:5px;background:#a5b6a7}.slot{min-height:55px;width:100%;text-align:left;padding:10px 12px;font-size:14px;font-weight:650;background:#fff}.slot.filled{background:#f0f4ed}.slot.correct{border-color:#c69875;background:#efd9c5;color:#664b38}.slot.correct:disabled{opacity:1}.slot .index{color:#a3aca1;font-weight:400}.slot .remove{float:right;color:#8a978b}.actions{display:flex;gap:10px;margin-top:22px}.primary{background:#285f43;border-color:#285f43;color:white;flex:1;font-weight:750}.primary:hover:not(:disabled){background:#1c4b33}.secondary{min-width:100px}#feedback{margin-top:14px;border-radius:12px;background:#eff3ec;padding:15px;line-height:1.5}#feedback[hidden],#hint[hidden]{display:none}.subtext{color:#5e7162;font-size:13px}footer{font-size:12px;color:#728075;margin-top:20px}@media(max-width:440px){.game{gap:12px}.app{padding:15px}.word,.slot{font-size:12px;padding:9px 6px}.slot{min-height:65px}.word{min-height:65px}.slot .remove{font-size:10px}.rail{width:3px}}
     .game[hidden]{display:none}
   </style>
 </head>
@@ -31,6 +31,7 @@
   let placed = []; // first word is the bottom of the continuum
   let attempts = 0;
   let solved = false;
+  let currentPuzzleDate = '';
   const bank = document.getElementById('bank');
   const slots = document.getElementById('slots');
   const check = document.getElementById('checkButton');
@@ -71,18 +72,50 @@
     check.disabled=solved||placed.length!==words.length||words.length===0;
   }
   function clearFeedback(){feedback.hidden=true;feedback.textContent=''}
+  function showSolvedResult() {
+    solved = true;
+    placed = [...answerBottomToTop];
+    hint.hidden = false;
+    hintButton.hidden = true;
+    feedback.hidden = false;
+    feedback.replaceChildren();
+    const title = document.createElement('strong');
+    title.textContent = '✓ You solved the mystery!';
+    const detail = document.createElement('div');
+    detail.className = 'subtext';
+    detail.textContent = `${puzzleHint} · Solved in ${attempts} ${attempts===1?'attempt':'attempts'}.`;
+    feedback.append(title, detail);
+    // Completed daily puzzles stay completed; reset is unavailable after solving.
+    resetButton.disabled = true;
+    render();
+  }
+  function saveCompletion() {
+    try {
+      localStorage.setItem(`spektrum-completed-${currentPuzzleDate}`, JSON.stringify({ attempts }));
+    } catch (error) { console.warn('Could not save puzzle completion:', error); }
+  }
+  function restoreCompletion() {
+    try {
+      const raw = localStorage.getItem(`spektrum-completed-${currentPuzzleDate}`);
+      if (!raw) return false;
+      const saved = JSON.parse(raw);
+      attempts = Number.isInteger(saved.attempts) && saved.attempts > 0 ? saved.attempts : 1;
+      showSolvedResult();
+      return true;
+    } catch (error) { console.warn('Could not restore puzzle completion:', error); return false; }
+  }
   hintButton.addEventListener('click',()=>{hint.hidden=false;hintButton.hidden=true});
   check.addEventListener('click',()=>{
     attempts++;
     const correct=placed.length===answerBottomToTop.length && placed.every((w,i)=>w===answerBottomToTop[i]);
     feedback.hidden=false;
-    if(correct){solved=true;hint.hidden=false;hintButton.hidden=true;
-      feedback.replaceChildren();
-      const title=document.createElement('strong');title.textContent='✓ You solved the mystery!';
-      const detail=document.createElement('div');detail.className='subtext';detail.textContent=`${puzzleHint} · Solved in ${attempts} ${attempts===1?'attempt':'attempts'}.`;
-      feedback.append(title,detail);
-    } else feedback.textContent='Not quite! Try a different order.';
-    render();
+    if (correct) {
+      saveCompletion();
+      showSolvedResult();
+    } else {
+      feedback.textContent='Not quite! Try a different order.';
+      render();
+    }
   });
   resetButton.addEventListener('click',()=>{placed=[];attempts=0;solved=false;hint.hidden=true;hintButton.hidden=false;clearFeedback();render()});
 
@@ -124,6 +157,7 @@
           typeof puzzle.hint !== 'string') {
         throw new Error('Invalid puzzle data');
       }
+      currentPuzzleDate = date;
       words = puzzle.words;
       answerBottomToTop = puzzle.answer;
       puzzleHint = puzzle.hint;
@@ -136,7 +170,7 @@
       hintButton.disabled = false;
       resetButton.disabled = false;
       clearFeedback();
-      render();
+      if (!restoreCompletion()) render();
     } catch (error) {
       console.error('Could not load puzzles.json:', error);
       showUnavailable('Could not load today’s puzzle. Please refresh the page or try again later.');
