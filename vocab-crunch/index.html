@@ -1,0 +1,21 @@
+ for(const b of bricks){let el=existing.get(b.id);if(!el){el=document.createElement('button');el.type='button';el.dataset.id=b.id;el.addEventListener('click',()=>onBrick(b.id));board.append(el)}existing.delete(b.id);
+ const g=groups[b.group];const word=g.items[b.item];
+ const category=wordColours.get(wordKey(word));
+ const type=colourClass[category];
+ const isSelected=selection.includes(b.id);
+ const isCategoryBlocked=!isSelected&&selectedCategories.has(category);
+ el.className=`brick ${type}${isSelected?' selected':''}${isCategoryBlocked?' category-blocked':''}`;
+ el.disabled=isCategoryBlocked;
+ el.setAttribute('aria-disabled',isCategoryBlocked?'true':'false');
+ el.textContent=g.items[b.item];el.style.left=`${b.x*cw+2}px`;el.style.top=`${b.y*ch+2}px`;el.style.width=`${b.width*cw-4}px`;el.style.height=`${(ch-4)*1.005}px`;el.setAttribute('aria-pressed',selection.includes(b.id)?'true':'false');}
+ for(const el of existing.values())el.remove();$('score').textContent=score.toLocaleString();$('target').textContent=TARGET.toLocaleString();$('next').textContent='+'+nextCount();$('progress').style.width=Math.min(100,score/TARGET*100)+'%';$('selectionStatus').textContent=resolvingTurn?'Bricks falling…':selection.length?`${selection.length} selected`:'Select 2–5 related bricks';$('clear').disabled=resolvingTurn;}
+function reset(){turnId++;resolvingTurn=false;bricks=[];selection=[];score=0;matches=0;idCounter=0;ended=false;$('overlay').hidden=true;notice.textContent='Select 2–5 related words. Tap a selected brick again to crunch!';
+ // Seed the board with four to six bricks spanning the bottom two rows. Include a match.
+ const nounGroups=groups.map((g,i)=>g.family==='noun'?i:null).filter(i=>i!==null);
+ const verbGroups=groups.map((g,i)=>g.family==='verb'?i:null).filter(i=>i!==null);
+ const options=Math.random()<0.5?nounGroups:verbGroups;
+ const group=options[rand(options.length)];
+ spawn({group,item:0});spawn({group,item:1});
+ for(let i=0;i<5;i++)spawn();compact();render();}
+$('clear').addEventListener('click',()=>{if(resolvingTurn)return;selection=[];render()});$('restart').addEventListener('click',reset);$('playAgain').addEventListener('click',reset);window.addEventListener('resize',render);reset();
+</script></body></html>
