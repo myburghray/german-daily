@@ -55,5 +55,24 @@
       "Lügen",
       "Beleidigen"
     ]
+  },
+  "2026-11-02": {
+    "hint": "Schlimmster Fleck",
+    "words": [
+      "Senf",
+      "Tinte",
+      "Wasser",
+      "Acrylfarbe",
+      "Bleichen",
+      "Kaffee"
+    ],
+    "answer": [
+      "Wasser",
+      "Kaffee",
+      "Senf",
+      "Acrylfarbe",
+      "Tinte",
+      "Bleichen"
+    ]
   }
 }
