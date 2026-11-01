@@ -1,0 +1,211 @@
+{
+  "defaultPool": "pets",
+  "schedule": {
+    "2026-11-02": "pets"
+  },
+  "pools": {
+    "pets": {
+      "theme": "Haustiere",
+      "targetScore": 2000,
+      "groups": [
+        {
+          "family": "noun",
+          "items": [
+            "Hund",
+            "der",
+            "dog",
+            "groß",
+            "big"
+          ]
+        },
+        {
+          "family": "noun",
+          "items": [
+            "Katze",
+            "die",
+            "cat",
+            "dünn",
+            "thin"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "Bellen",
+            "bark",
+            "laut",
+            "loud"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "Bellte",
+            "barked",
+            "laut",
+            "loud"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "Meow",
+            "miau",
+            "leise",
+            "quietly"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "Meowed",
+            "miaute",
+            "leise",
+            "quietly"
+          ]
+        },
+        {
+          "family": "noun",
+          "items": [
+            "Vogel",
+            "der",
+            "bird",
+            "klein",
+            "small"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "Zwitchern",
+            "chirp",
+            "fröhlich",
+            "happy"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "Chirped",
+            "zwitscherte",
+            "fröhlich",
+            "happy"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "Sitzen",
+            "sit",
+            "ruhig",
+            "quietly"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "Saß",
+            "sat",
+            "ruhig",
+            "quietly"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "Kratz",
+            "scratch",
+            "schnell",
+            "quickly"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "Verkratzt",
+            "scratched",
+            "schnell",
+            "quickly"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "Fliegen",
+            "fly",
+            "schnell",
+            "quickly"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "Flog",
+            "flew",
+            "schnell",
+            "quickly"
+          ]
+        }
+      ],
+      "colourWords": {
+        "MainEnglish": [
+          "dog",
+          "cat",
+          "bark",
+          "barked",
+          "Meow",
+          "Meowed",
+          "bird",
+          "chirp",
+          "Chirped",
+          "sit",
+          "sat",
+          "scratch",
+          "scratched",
+          "fly",
+          "flew"
+        ],
+        "MainDeutsch": [
+          "Hund",
+          "Katze",
+          "Bellen",
+          "Bellte",
+          "miau",
+          "miaute",
+          "Vogel",
+          "Zwitchern",
+          "zwitscherte",
+          "Sitzen",
+          "Saß",
+          "Kratz",
+          "Verkratzt",
+          "Fliegen",
+          "Flog"
+        ],
+        "DescriptiveEnglish": [
+          "big",
+          "thin",
+          "loud",
+          "quietly",
+          "small",
+          "happy",
+          "quickly"
+        ],
+        "DescriptiveDeutsch": [
+          "groß",
+          "dünn",
+          "laut",
+          "leise",
+          "klein",
+          "fröhlich",
+          "ruhig",
+          "schnell"
+        ],
+        "Determiners": [
+          "der",
+          "die"
+        ]
+      }
+    }
+  }
+}
