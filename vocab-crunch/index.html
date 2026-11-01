@@ -7,7 +7,7 @@
 :root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#23352f;background:#f3f5ef}*{box-sizing:border-box}body{margin:0;padding:12px}.app{max-width:610px;margin:auto;background:#fff;border:1px solid #dee4db;border-radius:20px;padding:16px;box-shadow:0 8px 30px #1c362109}header{display:flex;justify-content:space-between;align-items:center;gap:10px}h1{font-size:27px;margin:0;letter-spacing:-.8px}small{color:#657668}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.stat{background:#f0f3ed;padding:9px;border-radius:10px;text-align:center}.stat b{display:block;font-size:18px}.stat small{font-size:10px;text-transform:uppercase;letter-spacing:.08em}.progress{height:7px;background:#dfe7db;border-radius:10px;overflow:hidden;margin-bottom:10px}.progress div{height:100%;background:#558a67;width:0;transition:width .2s}.board{position:relative;border-radius:12px;background:#e7ece5;overflow:hidden;border:2px solid #c9d5c8;touch-action:manipulation;--cell:48px;height:calc(var(--cell)*8);background-image:linear-gradient(to right,#ffffff60 1px,transparent 1px),linear-gradient(to bottom,#ffffff60 1px,transparent 1px);background-size:calc(100%/5) var(--cell)}.brick{position:absolute;border:1.5px solid #0002;border-radius:8px;display:flex;justify-content:center;align-items:center;text-align:center;padding:3px;font-weight:700;line-height:1.15;font-size:clamp(10px,2.8vw,14px);box-shadow:0 2px 2px #0001;cursor:pointer;user-select:none;transition:top .24s ease,left .24s ease,background .15s;overflow-wrap:anywhere}.brick.selected{outline:3px solid #262d28;outline-offset:-4px;filter:brightness(.76) saturate(1.08);box-shadow:inset 0 0 0 2px #0002,0 2px 2px #0001}.brick.category-blocked{filter:grayscale(1);opacity:.35;cursor:default;box-shadow:none}.brick.main-english{background:#a4ddd7;color:#134e4a}.brick.main-deutsch{background:#eeb0aa;color:#742f2c}.brick.descriptive-english{background:#bee3b6;color:#295a34}.brick.descriptive-deutsch{background:#f4df8c;color:#685110}.brick.determiner{background:#bbd9f3;color:#244c71}.brick:focus-visible{outline:3px solid black}.toolbar{margin-top:11px;display:flex;align-items:center;justify-content:space-between;gap:8px}button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid #c7d4c5;padding:11px 14px;background:white;color:#263a2d}.primary{background:#285f43;color:white;border-color:#285f43;font-weight:700}.primary:disabled{opacity:.45;cursor:default}.notice{font-size:13px;color:#506456;margin:10px 0;min-height:35px;line-height:1.4}.legend{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:#607065;margin-top:8px}.dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px}.overlay{position:absolute;inset:0;background:#ffffffdd;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:25px;gap:12px}.overlay[hidden]{display:none}.overlay h2{margin:0;font-size:26px}.overlay p{max-width:270px;line-height:1.5}.hint{font-size:12px;margin-top:9px;color:#627267}@media(max-width:500px){body{padding:0;background:#fff}.app{border:0;border-radius:0;box-shadow:none;padding:10px 12px}h1{font-size:23px}.stats{margin:8px 0}.stat{padding:6px}.board{--cell:min(calc((100vw - 28px)/5),calc((100dvh - 245px)/8));min-height:280px}.brick{font-size:clamp(9px,2.8vw,13px)}.notice{font-size:12px;margin:7px 0;min-height:30px}}@media(max-height:670px){.legend,.hint{display:none}.app{padding-top:7px}.board{--cell:min(calc((100vw - 28px)/5),calc((100dvh - 210px)/8))}}
 </style>
 </head><body><main class="app">
-<header><div><h1>Vocab Crunch</h1><small>Prototype 01 · Haustiere</small></div><button id="restart">↻ Restart</button></header>
+<header><div><h1>Vocab Crunch</h1><small id="theme">Prototype 01 · Haustiere</small></div><button id="restart">↻ Restart</button></header>
 <div class="stats"><div class="stat"><small>Score</small><b id="score">0</b></div><div class="stat"><small>Target</small><b id="target">2,000</b></div><div class="stat"><small>Next drop</small><b id="next">+2</b></div></div>
 <div class="progress"><div id="progress"></div></div>
 <div class="board" id="board" aria-label="Vocabulary tile game board"><div class="overlay" id="overlay" hidden><h2 id="endTitle"></h2><p id="endDescription"></p><button class="primary" id="playAgain">Play again</button></div></div>
@@ -17,41 +17,15 @@
 <div class="hint">Shared words work with every compatible set. A word can appear at most twice on the board; selecting a brick greys out all other bricks of its colour. Incorrect confirmed matches bring new bricks without clearing any.</div>
 </main><script>
 'use strict';
-// MATCHING SETS: Each row supplies valid combinations of 2–5 distinct words.
-// The original supplied spellings (including "Zwitchern", "Kratz", and
-// "Verkratzt") are intentionally retained. The family field is ONLY used
-// for gentle noun-versus-verb spawn balancing, not for brick colours.
-// Shared words work across every group that contains them.
-const groups = [
- {family:'noun',items:['Hund','der','dog','groß','big']},
- {family:'noun',items:['Katze','die','cat','dünn','thin']},
- {family:'verb',items:['Bellen','bark','laut','loud']},
- {family:'verb',items:['Bellte','barked','laut','loud']},
- {family:'verb',items:['Meow','miau','leise','quietly']},
- {family:'verb',items:['Meowed','miaute','leise','quietly']},
- {family:'noun',items:['Vogel','der','bird','klein','small']},
- {family:'verb',items:['Zwitchern','chirp','fröhlich','happy']},
- {family:'verb',items:['Chirped','zwitscherte','fröhlich','happy']},
- {family:'verb',items:['Sitzen','sit','ruhig','quietly']},
- {family:'verb',items:['Saß','sat','ruhig','quietly']},
- {family:'verb',items:['Kratz','scratch','schnell','quickly']},
- {family:'verb',items:['Verkratzt','scratched','schnell','quickly']},
- {family:'verb',items:['Fliegen','fly','schnell','quickly']},
- {family:'verb',items:['Flog','flew','schnell','quickly']}
-];
+// The 15 matching sets now live in vocabulary.json, separate from this game.
+// Each dated entry in the JSON schedule selects a vocabulary pool.
+let groups = [];
 // Match by visible vocabulary, not by the particular group that spawned a brick.
 // Keep individual forms distinct: e.g. bark and barked belong to different rows.
 function wordKey(text){return text.normalize('NFC').trim().toLocaleLowerCase('de')}
-// WORD COLOURS: Stored independently of matching sets and spawn families.
-// Each visible word has exactly one category, wherever it appears.
-// To change a word's colour, move it between these five lists.
-const colourWords = {
- MainEnglish: ['dog','cat','bark','barked','Meow','Meowed','bird','chirp','Chirped','sit','sat','scratch','scratched','fly','flew'],
- MainDeutsch: ['Hund','Katze','Bellen','Bellte','miau','miaute','Vogel','Zwitchern','zwitscherte','Sitzen','Saß','Kratz','Verkratzt','Fliegen','Flog'],
- DescriptiveEnglish: ['big','thin','loud','quietly','small','happy','quickly'],
- DescriptiveDeutsch: ['groß','dünn','laut','leise','klein','fröhlich','ruhig','schnell'],
- Determiners: ['der','die']
-};
+// Colour categories are also supplied by vocabulary.json. CSS below still
+// determines their appearance, independently of the matching sets.
+let colourWords = {};
 const colourClass = {
  MainEnglish: 'main-english',
  MainDeutsch: 'main-deutsch',
@@ -59,18 +33,8 @@ const colourClass = {
  DescriptiveDeutsch: 'descriptive-deutsch',
  Determiners: 'determiner'
 };
-const wordColours = new Map();
-for (const [category, entries] of Object.entries(colourWords)) {
- for (const word of entries) {
-  const key=wordKey(word);
-  if (wordColours.has(key)) throw new Error(`Duplicate colour assignment for: ${word}`);
-  wordColours.set(key,category);
- }
-}
-for(const group of groups)for(const word of group.items){
- if(!wordColours.has(wordKey(word))) throw new Error(`Missing colour category for: ${word}`);
-}
-const groupWordKeys = groups.map(group=>group.items.map(wordKey));
+let wordColours = new Map();
+let groupWordKeys = [];
 function brickWordKey(brick){return wordKey(groups[brick.group].items[brick.item])}
 // Count by visible spelling, across all vocabulary groups. A word can never
 // appear on the board more than twice, even when several groups contain it.
@@ -83,10 +47,7 @@ function wordCounts(source=bricks){
 // With nextCount() below, this happens after 8 completed matches.
 // Delayed vocabulary also derives from the separate colour lists, so newly
 // added descriptive words automatically unlock with the four-brick phase.
-const delayedWords = new Set([
- ...colourWords.DescriptiveEnglish,
- ...colourWords.DescriptiveDeutsch
-].map(wordKey));
+let delayedWords = new Set();
 function unlockedWord(word){return nextCount()>=4 || !delayedWords.has(wordKey(word))}
 // Soft colour balancing: noun+determiner are one family, verbs another;
 // the unlocked adjectives/adverbs form a third family. Count occupied
@@ -119,11 +80,8 @@ function colourBalanceScore(source){
  return 1-distance/2; // 0..1; only a small tiebreak in plan ranking.
 }
 // Precompute legal pairs once so repeated board checks remain fast on phones.
-const legalPairKeys=new Set();
+let legalPairKeys = new Set();
 function pairSignature(a,b){return a<b?`${a}\u0000${b}`:`${b}\u0000${a}`}
-for(const allowed of groupWordKeys)for(let i=0;i<allowed.length;i++)
- for(let j=i+1;j<allowed.length;j++)
-  if(allowed[i]!==allowed[j])legalPairKeys.add(pairSignature(allowed[i],allowed[j]));
 function compatibleWordKeys(keys){
  if(keys.length<2||keys.length>5||new Set(keys).size!==keys.length)return false;
  // Every successful match uses distinct colour roles, irrespective of group.
@@ -131,11 +89,13 @@ function compatibleWordKeys(keys){
  if(keys.length===2)return legalPairKeys.has(pairSignature(keys[0],keys[1]));
  return groupWordKeys.some(allowed=>keys.every(key=>allowed.includes(key)));
 }
-const COLS=5,ROWS=8,TARGET=2000;
+const COLS=5,ROWS=8;
+let TARGET=2000;
 const board=document.getElementById('board'),notice=document.getElementById('notice');
 const $=id=>document.getElementById(id);
 let bricks=[],selection=[],score=0,matches=0,idCounter=0,ended=false;
 let resolvingTurn=false,turnId=0;
+let vocabularyLoaded=false;
 const FALL_ANIMATION_MS=260; // CSS top transition is .24s; leave a small buffer.
 function rand(n){return Math.floor(Math.random()*n)}
 function occupying(source=bricks){const g=Array.from({length:ROWS},()=>Array(COLS).fill(null));for(const b of source)for(let c=b.x;c<b.x+b.width;c++)g[b.y][c]=b.id;return g}
@@ -416,7 +376,7 @@ function render(){const existing=new Map([...board.querySelectorAll('.brick')].m
  el.setAttribute('aria-disabled',isCategoryBlocked?'true':'false');
  el.textContent=g.items[b.item];el.style.left=`${b.x*cw+2}px`;el.style.top=`${b.y*ch+2}px`;el.style.width=`${b.width*cw-4}px`;el.style.height=`${(ch-4)*1.005}px`;el.setAttribute('aria-pressed',selection.includes(b.id)?'true':'false');}
  for(const el of existing.values())el.remove();$('score').textContent=score.toLocaleString();$('target').textContent=TARGET.toLocaleString();$('next').textContent='+'+nextCount();$('progress').style.width=Math.min(100,score/TARGET*100)+'%';$('selectionStatus').textContent=resolvingTurn?'Bricks falling…':selection.length?`${selection.length} selected`:'Select 2–5 related bricks';$('clear').disabled=resolvingTurn;}
-function reset(){turnId++;resolvingTurn=false;bricks=[];selection=[];score=0;matches=0;idCounter=0;ended=false;$('overlay').hidden=true;notice.textContent='Select 2–5 related words. Tap a selected brick again to crunch!';
+function reset(){if(!vocabularyLoaded)return;turnId++;resolvingTurn=false;bricks=[];selection=[];score=0;matches=0;idCounter=0;ended=false;$('overlay').hidden=true;notice.textContent='Select 2–5 related words. Tap a selected brick again to crunch!';
  // Seed the board with four to six bricks spanning the bottom two rows. Include a match.
  const nounGroups=groups.map((g,i)=>g.family==='noun'?i:null).filter(i=>i!==null);
  const verbGroups=groups.map((g,i)=>g.family==='verb'?i:null).filter(i=>i!==null);
@@ -424,5 +384,96 @@ function reset(){turnId++;resolvingTurn=false;bricks=[];selection=[];score=0;mat
  const group=options[rand(options.length)];
  spawn({group,item:0});spawn({group,item:1});
  for(let i=0;i<5;i++)spawn();compact();render();}
-$('clear').addEventListener('click',()=>{if(resolvingTurn)return;selection=[];render()});$('restart').addEventListener('click',reset);$('playAgain').addEventListener('click',reset);window.addEventListener('resize',render);reset();
+// Select the same daily vocabulary worldwide using the date in Germany.
+function todayInGermany(){
+ const parts=new Intl.DateTimeFormat('en-GB',{
+  timeZone:'Europe/Berlin',year:'numeric',month:'2-digit',day:'2-digit'
+ }).formatToParts(new Date());
+ const get=type=>parts.find(p=>p.type===type).value;
+ return `${get('year')}-${get('month')}-${get('day')}`;
+}
+
+// Validate the independently stored matching sets and word-colour dictionary.
+// A malformed or incomplete vocabulary file should show a clear error instead
+// of starting a game containing unmatchable or uncoloured words.
+function installVocabulary(pool){
+ if(!pool||!Array.isArray(pool.groups)||pool.groups.length===0||
+    !pool.colourWords||typeof pool.colourWords!=='object'){
+  throw new Error('Missing groups or colourWords in vocabulary.json');
+ }
+ const categories=Object.keys(colourClass);
+ const newColours=new Map();
+ for(const category of categories){
+  const entries=pool.colourWords[category];
+  if(!Array.isArray(entries))throw new Error(`Missing colour list: ${category}`);
+  for(const word of entries){
+   if(typeof word!=='string'||!word.trim())throw new Error('Empty colour word');
+   const key=wordKey(word);
+   if(newColours.has(key))throw new Error(`Duplicate colour assignment: ${word}`);
+   newColours.set(key,category);
+  }
+ }
+ const newGroups=pool.groups.map((group,i)=>{
+  if(!['noun','verb'].includes(group.family)||!Array.isArray(group.items)||
+      group.items.length<2||group.items.length>5){
+   throw new Error(`Invalid matching group ${i+1}`);
+  }
+  const keys=group.items.map(word=>{
+   if(typeof word!=='string'||!word.trim())throw new Error(`Empty word in group ${i+1}`);
+   const key=wordKey(word);
+   if(!newColours.has(key))throw new Error(`Missing colour for ${word}`);
+   return key;
+  });
+  if(new Set(keys).size!==keys.length||
+     new Set(keys.map(key=>newColours.get(key))).size!==keys.length){
+   throw new Error(`Duplicate word or colour in group ${i+1}`);
+  }
+  return {family:group.family,items:[...group.items]};
+ });
+ const target=Number(pool.targetScore);
+ if(!Number.isFinite(target)||target<=0)throw new Error('Invalid targetScore');
+ groups=newGroups;
+ colourWords=pool.colourWords;
+ wordColours=newColours;
+ groupWordKeys=groups.map(g=>g.items.map(wordKey));
+ delayedWords=new Set([
+  ...colourWords.DescriptiveEnglish,...colourWords.DescriptiveDeutsch
+ ].map(wordKey));
+ legalPairKeys=new Set();
+ for(const allowed of groupWordKeys){
+  for(let i=0;i<allowed.length;i++)for(let j=i+1;j<allowed.length;j++){
+   legalPairKeys.add(pairSignature(allowed[i],allowed[j]));
+  }
+ }
+ TARGET=target;
+ $('theme').textContent=`Prototype 01 · ${pool.theme||'Daily vocabulary'}`;
+}
+
+async function loadDailyVocabulary(){
+ vocabularyLoaded=false;
+ $('restart').disabled=true;
+ $('clear').disabled=true;
+ notice.textContent='Loading vocabulary…';
+ try{
+  // A relative path works at /vocab-crunch/ on GitHub Pages.
+  const response=await fetch('./vocabulary.json',{cache:'no-store'});
+  if(!response.ok)throw new Error(`Cannot load vocabulary.json: HTTP ${response.status}`);
+  const config=await response.json();
+  const date=todayInGermany();
+  const poolName=config.schedule?.[date]||config.defaultPool;
+  const pool=config.pools?.[poolName];
+  if(!pool)throw new Error(`No vocabulary pool for ${date}`);
+  installVocabulary(pool);
+  vocabularyLoaded=true;
+  $('restart').disabled=false;
+  $('restart').textContent='↻ Restart';
+  reset();
+ }catch(error){
+  console.error('Failed to load Vocab Crunch vocabulary:',error);
+  notice.textContent='Could not load vocabulary.json. Check that it is next to index.html, then retry.';
+  $('restart').disabled=false;
+  $('restart').textContent='↻ Retry';
+ }
+}
+$('clear').addEventListener('click',()=>{if(resolvingTurn)return;selection=[];render()});$('restart').addEventListener('click',()=>vocabularyLoaded?reset():loadDailyVocabulary());$('playAgain').addEventListener('click',reset);window.addEventListener('resize',()=>{if(vocabularyLoaded)render()});loadDailyVocabulary();
 </script></body></html>
