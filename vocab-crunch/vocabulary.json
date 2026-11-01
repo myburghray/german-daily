@@ -1,7 +1,7 @@
 {
   "defaultPool": "pets",
   "schedule": {
-    "2026-11-01": "pets"
+    "2026-11-01": "pets",
     "2026-11-02": "cafe"
   },
   "pools": {
@@ -206,7 +206,7 @@
           "der",
           "die"
         ]
-      }
+      },
     }
     "cafe": {
   "theme": "Café",
