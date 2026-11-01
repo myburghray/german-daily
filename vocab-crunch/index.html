@@ -1,3 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Vocab Crunch — Pets Prototype</title>
+<style>
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#23352f;background:#f3f5ef}*{box-sizing:border-box}body{margin:0;padding:12px}.app{max-width:610px;margin:auto;background:#fff;border:1px solid #dee4db;border-radius:20px;padding:16px;box-shadow:0 8px 30px #1c362109}header{display:flex;justify-content:space-between;align-items:center;gap:10px}h1{font-size:27px;margin:0;letter-spacing:-.8px}small{color:#657668}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.stat{background:#f0f3ed;padding:9px;border-radius:10px;text-align:center}.stat b{display:block;font-size:18px}.stat small{font-size:10px;text-transform:uppercase;letter-spacing:.08em}.progress{height:7px;background:#dfe7db;border-radius:10px;overflow:hidden;margin-bottom:10px}.progress div{height:100%;background:#558a67;width:0;transition:width .2s}.board{position:relative;border-radius:12px;background:#e7ece5;overflow:hidden;border:2px solid #c9d5c8;touch-action:manipulation;--cell:48px;height:calc(var(--cell)*8);background-image:linear-gradient(to right,#ffffff60 1px,transparent 1px),linear-gradient(to bottom,#ffffff60 1px,transparent 1px);background-size:calc(100%/5) var(--cell)}.brick{position:absolute;border:1.5px solid #0002;border-radius:8px;display:flex;justify-content:center;align-items:center;text-align:center;padding:3px;font-weight:700;line-height:1.15;font-size:clamp(10px,2.8vw,14px);box-shadow:0 2px 2px #0001;cursor:pointer;user-select:none;transition:top .24s ease,left .24s ease,background .15s;overflow-wrap:anywhere}.brick.selected{outline:3px solid #262d28;outline-offset:-4px;filter:brightness(.76) saturate(1.08);box-shadow:inset 0 0 0 2px #0002,0 2px 2px #0001}.brick.category-blocked{filter:grayscale(1);opacity:.35;cursor:default;box-shadow:none}.brick.main-english{background:#a4ddd7;color:#134e4a}.brick.main-deutsch{background:#eeb0aa;color:#742f2c}.brick.descriptive-english{background:#bee3b6;color:#295a34}.brick.descriptive-deutsch{background:#f4df8c;color:#685110}.brick.determiner{background:#bbd9f3;color:#244c71}.brick:focus-visible{outline:3px solid black}.toolbar{margin-top:11px;display:flex;align-items:center;justify-content:space-between;gap:8px}button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid #c7d4c5;padding:11px 14px;background:white;color:#263a2d}.primary{background:#285f43;color:white;border-color:#285f43;font-weight:700}.primary:disabled{opacity:.45;cursor:default}.notice{font-size:13px;color:#506456;margin:10px 0;min-height:35px;line-height:1.4}.legend{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:#607065;margin-top:8px}.dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px}.overlay{position:absolute;inset:0;background:#ffffffdd;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:25px;gap:12px}.overlay[hidden]{display:none}.overlay h2{margin:0;font-size:26px}.overlay p{max-width:270px;line-height:1.5}.hint{font-size:12px;margin-top:9px;color:#627267}@media(max-width:500px){body{padding:0;background:#fff}.app{border:0;border-radius:0;box-shadow:none;padding:10px 12px}h1{font-size:23px}.stats{margin:8px 0}.stat{padding:6px}.board{--cell:min(calc((100vw - 28px)/5),calc((100dvh - 245px)/8));min-height:280px}.brick{font-size:clamp(9px,2.8vw,13px)}.notice{font-size:12px;margin:7px 0;min-height:30px}}@media(max-height:670px){.legend,.hint{display:none}.app{padding-top:7px}.board{--cell:min(calc((100vw - 28px)/5),calc((100dvh - 210px)/8))}}
+</style>
+</head><body><main class="app">
+<header><div><h1>Vocab Crunch</h1><small>Prototype 01 · Haustiere</small></div><button id="restart">↻ Restart</button></header>
+<div class="stats"><div class="stat"><small>Score</small><b id="score">0</b></div><div class="stat"><small>Target</small><b id="target">2,000</b></div><div class="stat"><small>Next drop</small><b id="next">+2</b></div></div>
+<div class="progress"><div id="progress"></div></div>
+<div class="board" id="board" aria-label="Vocabulary tile game board"><div class="overlay" id="overlay" hidden><h2 id="endTitle"></h2><p id="endDescription"></p><button class="primary" id="playAgain">Play again</button></div></div>
+<div class="toolbar"><span id="selectionStatus"><small>Select 2–5 related bricks</small></span><button class="primary" id="clear">Clear selection</button></div>
+<div class="notice" id="notice" role="status" aria-live="polite">Select 2–5 related words. Tap a selected brick again to crunch!</div>
+<div class="legend"><span><i class="dot" style="background:#a4ddd7"></i>Main English</span><span><i class="dot" style="background:#eeb0aa"></i>Main Deutsch</span><span><i class="dot" style="background:#bee3b6"></i>Descriptive English</span><span><i class="dot" style="background:#f4df8c"></i>Descriptive Deutsch</span><span><i class="dot" style="background:#bbd9f3"></i>Determiners</span></div>
+<div class="hint">Shared words work with every compatible set. A word can appear at most twice on the board; selecting a brick greys out all other bricks of its colour. Incorrect confirmed matches bring new bricks without clearing any.</div>
+</main><script>
+'use strict';
+// MATCHING SETS: Each row supplies valid combinations of 2–5 distinct words.
+// The original supplied spellings (including "Zwitchern", "Kratz", and
+// "Verkratzt") are intentionally retained. The family field is ONLY used
+// for gentle noun-versus-verb spawn balancing, not for brick colours.
+// Shared words work across every group that contains them.
+const groups = [
+ {family:'noun',items:['Hund','der','dog','groß','big']},
+ {family:'noun',items:['Katze','die','cat','dünn','thin']},
+ {family:'verb',items:['Bellen','bark','laut','loud']},
+ {family:'verb',items:['Bellte','barked','laut','loud']},
+ {family:'verb',items:['Meow','miau','leise','quietly']},
+ {family:'verb',items:['Meowed','miaute','leise','quietly']},
+ {family:'noun',items:['Vogel','der','bird','klein','small']},
+ {family:'verb',items:['Zwitchern','chirp','fröhlich','happy']},
+ {family:'verb',items:['Chirped','zwitscherte','fröhlich','happy']},
+ {family:'verb',items:['Sitzen','sit','ruhig','quietly']},
+ {family:'verb',items:['Saß','sat','ruhig','quietly']},
+ {family:'verb',items:['Kratz','scratch','schnell','quickly']},
+ {family:'verb',items:['Verkratzt','scratched','schnell','quickly']},
+ {family:'verb',items:['Fliegen','fly','schnell','quickly']},
+ {family:'verb',items:['Flog','flew','schnell','quickly']}
+];
+// Match by visible vocabulary, not by the particular group that spawned a brick.
+// Keep individual forms distinct: e.g. bark and barked belong to different rows.
+function wordKey(text){return text.normalize('NFC').trim().toLocaleLowerCase('de')}
+// WORD COLOURS: Stored independently of matching sets and spawn families.
+// Each visible word has exactly one category, wherever it appears.
+// To change a word's colour, move it between these five lists.
+const colourWords = {
+ MainEnglish: ['dog','cat','bark','barked','Meow','Meowed','bird','chirp','Chirped','sit','sat','scratch','scratched','fly','flew'],
+ MainDeutsch: ['Hund','Katze','Bellen','Bellte','miau','miaute','Vogel','Zwitchern','zwitscherte','Sitzen','Saß','Kratz','Verkratzt','Fliegen','Flog'],
+ DescriptiveEnglish: ['big','thin','loud','quietly','small','happy','quickly'],
+ DescriptiveDeutsch: ['groß','dünn','laut','leise','klein','fröhlich','ruhig','schnell'],
+ Determiners: ['der','die']
+};
+const colourClass = {
+ MainEnglish: 'main-english',
+ MainDeutsch: 'main-deutsch',
+ DescriptiveEnglish: 'descriptive-english',
+ DescriptiveDeutsch: 'descriptive-deutsch',
+ Determiners: 'determiner'
+};
+const wordColours = new Map();
+for (const [category, entries] of Object.entries(colourWords)) {
+ for (const word of entries) {
+  const key=wordKey(word);
+  if (wordColours.has(key)) throw new Error(`Duplicate colour assignment for: ${word}`);
+  wordColours.set(key,category);
+ }
+}
+for(const group of groups)for(const word of group.items){
+ if(!wordColours.has(wordKey(word))) throw new Error(`Missing colour category for: ${word}`);
+}
+const groupWordKeys = groups.map(group=>group.items.map(wordKey));
+function brickWordKey(brick){return wordKey(groups[brick.group].items[brick.item])}
+// Count by visible spelling, across all vocabulary groups. A word can never
+// appear on the board more than twice, even when several groups contain it.
+function wordCounts(source=bricks){
+ const counts=new Map();
+ for(const brick of source){const key=brickWordKey(brick);counts.set(key,(counts.get(key)||0)+1)}
+ return counts;
+}
+// Hold back all adjective/adverb descriptors until drops reach 4 bricks per turn.
+// With nextCount() below, this happens after 8 completed matches.
+// Delayed vocabulary also derives from the separate colour lists, so newly
+// added descriptive words automatically unlock with the four-brick phase.
+const delayedWords = new Set([
+ ...colourWords.DescriptiveEnglish,
+ ...colourWords.DescriptiveDeutsch
+].map(wordKey));
+function unlockedWord(word){return nextCount()>=4 || !delayedWords.has(wordKey(word))}
+// Soft colour balancing: noun+determiner are one family, verbs another;
+// the unlocked adjectives/adverbs form a third family. Count occupied
+// *cells*, so a two-wide brick contributes twice as much to the visual mix.
+function colourFamily(v){
+ const word=groups[v.group].items[v.item];
+ return delayedWords.has(wordKey(word))?'descriptor':groups[v.group].family;
+}
+function colourTargets(){
+ return nextCount()>=4
+  ? {noun:0.40,verb:0.40,descriptor:0.20}
+  : {noun:0.50,verb:0.50,descriptor:0};
+}
+function colourShares(source){
+ const cells={noun:0,verb:0,descriptor:0};
+ let total=0;
+ for(const b of source){cells[colourFamily(b)]+=b.width;total+=b.width}
+ return {noun:total?cells.noun/total:0,verb:total?cells.verb/total:0,
+  descriptor:total?cells.descriptor/total:0};
+}
+function colourSpawnWeight(candidate,source){
+ const family=colourFamily(candidate),target=colourTargets()[family];
+ const current=colourShares(source)[family];
+ // This is just a probability adjustment (0.75x to 1.35x), not a quota.
+ return Math.max(0.75,Math.min(1.35,1+1.1*(target-current)));
+}
+function colourBalanceScore(source){
+ const shares=colourShares(source),targets=colourTargets();
+ const distance=Object.keys(targets).reduce((sum,key)=>sum+Math.abs(shares[key]-targets[key]),0);
+ return 1-distance/2; // 0..1; only a small tiebreak in plan ranking.
+}
+// Precompute legal pairs once so repeated board checks remain fast on phones.
+const legalPairKeys=new Set();
+function pairSignature(a,b){return a<b?`${a}\u0000${b}`:`${b}\u0000${a}`}
+for(const allowed of groupWordKeys)for(let i=0;i<allowed.length;i++)
+ for(let j=i+1;j<allowed.length;j++)
+  if(allowed[i]!==allowed[j])legalPairKeys.add(pairSignature(allowed[i],allowed[j]));
+function compatibleWordKeys(keys){
+ if(keys.length<2||keys.length>5||new Set(keys).size!==keys.length)return false;
+ // Every successful match uses distinct colour roles, irrespective of group.
+ if(new Set(keys.map(key=>wordColours.get(key))).size!==keys.length)return false;
+ if(keys.length===2)return legalPairKeys.has(pairSignature(keys[0],keys[1]));
+ return groupWordKeys.some(allowed=>keys.every(key=>allowed.includes(key)));
+}
+const COLS=5,ROWS=8,TARGET=2000;
+const board=document.getElementById('board'),notice=document.getElementById('notice');
+const $=id=>document.getElementById(id);
+let bricks=[],selection=[],score=0,matches=0,idCounter=0,ended=false;
+let resolvingTurn=false,turnId=0;
+const FALL_ANIMATION_MS=260; // CSS top transition is .24s; leave a small buffer.
+function rand(n){return Math.floor(Math.random()*n)}
+function occupying(source=bricks){const g=Array.from({length:ROWS},()=>Array(COLS).fill(null));for(const b of source)for(let c=b.x;c<b.x+b.width;c++)g[b.y][c]=b.id;return g}
+function fits(g,x,y,width){if(x<0||x+width>COLS||y<0||y>=ROWS)return false;for(let c=x;c<x+width;c++)if(g[y][c]!==null)return false;return true}
+// A newly spawned brick falls vertically from the top. Every cell along its
+// entire width must be unobstructed, not just the destination cells. This
+// excludes otherwise-empty pockets underneath one- and two-wide overhangs.
+function clearDropPath(g,x,y,width){
+ for(let row=0;row<=y;row++){
+  if(!fits(g,x,row,width))return false;
+ }
+ return true;
+}
+// Among spaces reachable from the top, prefer the lowest available position.
+// All columns spanned by a two-wide brick must have an open path above them.
+function availablePositions(width,source=bricks){
+ const g=occupying(source),options=[];
+ let lowest=-1;
+ for(let y=ROWS-1;y>=0;y--){
+  for(let x=0;x<=COLS-width;x++){
+   if(!clearDropPath(g,x,y,width))continue;
+   if(lowest===-1)lowest=y;
+   if(y===lowest)options.push({x,y});
+  }
+  if(lowest!==-1)break;
+ }
+ return options;
+}
+// Width is determined by the number of letters in the displayed word.
+// Ignore spaces and punctuation if later vocabulary includes multiword phrases.
+function wordWidth(text){
+ const letterCount=[...text].filter(char=>/\p{L}/u.test(char)).length;
+ return letterCount<=5?1:2;
+}
+function chooseVocabulary(requiredWidth=null){
+ const counts=wordCounts();
+ const present=[...counts.keys()];
+ // Unique visible words keep repeated descriptors from inflating their odds.
+ const possible=unlockedVocabulary().filter(v=>
+   (requiredWidth===null||v.width===requiredWidth)&&(counts.get(v.key)||0)<2)
+  .map(v=>{
+   const active=present.some(key=>compatibleWordKeys([key,v.key]));
+   return {...v,weight:(active?8:1)*colourSpawnWeight(v,bricks)};
+  });
+ return possible.length?weightedChoice(possible):null;
+}
+function spawn(forced=null){
+ // Choose the word first so its spelling determines its brick width.
+ let v=forced||chooseVocabulary();
+ if(!v||!unlockedWord(groups[v.group].items[v.item])||
+    (wordCounts().get(brickWordKey(v))||0)>=2)return false;
+ let width=wordWidth(groups[v.group].items[v.item]);
+ let options=availablePositions(width);
+ if(!options.length&&width===2){
+  // A two-wide brick won't fit: choose a genuinely short word instead
+  // of shrinking a long word into a one-wide brick.
+  v=chooseVocabulary(1);
+  if(!v)return false;
+  width=1;
+  options=availablePositions(1);
+ }
+ if(!options.length)return false;
+ // Randomise between equally low, top-accessible spaces.
+ const pos=options[rand(options.length)];
+ bricks.push({id:++idCounter,group:v.group,item:v.item,width,x:pos.x,y:pos.y});return true;
+}
+function compact(){
+ // Simulate gravity in stable passes. Two-wide bricks require clear cells below both ends.
+ let moved=true,passes=0;
+ while(moved&&passes++<ROWS*bricks.length){moved=false;const ordered=[...bricks].sort((a,b)=>b.y-a.y);
+  for(const b of ordered){if(b.y>=ROWS-1)continue;const g=occupying();let can=true;for(let x=b.x;x<b.x+b.width;x++)if(g[b.y+1][x]!==null)can=false;if(can){b.y++;moved=true}}
+ }
+}
+function topFull(){const g=occupying();return g[0].every(x=>x!==null)}
+function nextCount(){return Math.min(5,2+Math.floor(matches/4))}
+// A turn is planned on a copy of the settled board before any new bricks appear.
+// Every planned landing is checked against the SAME clear drop path and width
+// rules that normal spawning uses. No occupied cells or overhangs are bypassed.
+function pairCount(source){
+ let count=0;
+ for(let i=0;i<source.length;i++)for(let j=i+1;j<source.length;j++){
+  if(compatibleWordKeys([brickWordKey(source[i]),brickWordKey(source[j])]))count++;
+ }
+ return count;
+}
+function unlockedVocabulary(){
+ // Duplicated visible words have identical matching behaviour, so one
+ // representative of each word is sufficient for new brick generation.
+ const seen=new Set(),pool=[];
+ for(let group=0;group<groups.length;group++)for(let item=0;item<groups[group].items.length;item++){
+  const word=groups[group].items[item],key=wordKey(word);
+  if(seen.has(key)||!unlockedWord(word))continue;
+  seen.add(key);
+  pool.push({group,item,key,width:wordWidth(word)});
+ }
+ return pool;
+}
+function weightedChoice(options){
+ let total=options.reduce((sum,o)=>sum+o.weight,0),roll=Math.random()*total;
+ for(const option of options){roll-=option.weight;if(roll<0)return option}
+ return options[options.length-1];
+}
+function makeSpawnPlan(count,pool){
+ const simulation=bricks.map(b=>({...b}));
+ const counts=wordCounts(simulation);
+ let added=0,pairs=pairCount(simulation);
+ for(let i=0;i<count;i++){
+  const positions={1:availablePositions(1,simulation),2:availablePositions(2,simulation)};
+  const possible=pool.filter(v=>positions[v.width].length&&(counts.get(v.key)||0)<2);
+  if(!possible.length)break;
+  // Prioritise partners for existing words, especially when very few matches
+  // remain; still include unpredictable vocabulary for variety.
+  const present=simulation.map(brickWordKey);
+  const picks=possible.map(v=>{
+   const partners=present.filter(key=>compatibleWordKeys([key,v.key])).length;
+   // Matching stays the strong preference; colour is only a multiplier.
+   return {...v,partners,weight:(1+partners*(pairs<2?14:3))*colourSpawnWeight(v,simulation)};
+  });
+  const choice=weightedChoice(picks);
+  const choices=positions[choice.width];
+  const pos=choices[rand(choices.length)];
+  simulation.push({id:-1-added,group:choice.group,item:choice.item,
+   width:choice.width,x:pos.x,y:pos.y,isNew:true});
+  counts.set(choice.key,(counts.get(choice.key)||0)+1);
+  added++;
+  pairs+=choice.partners;
+ }
+ return {simulation,added,pairs};
+}
+// In the rare situation where no proposed drop produces a match, re-label a
+// same-width brick as an unlocked word that makes a pair. Prefer new (as yet
+// unseen) bricks, avoiding a visible change to existing bricks whenever possible.
+function repairUnmatchedBoard(source,pool){
+ if(source.length<2)return false;
+ const mutable=[...source].sort((a,b)=>Number(Boolean(b.isNew))-Number(Boolean(a.isNew)));
+ const currentKeys=new Set(source.map(brickWordKey));
+ // A repair must honour the same two-copies-per-word limit as normal spawning.
+ // Count the other bricks before considering a replacement.
+ for(const target of mutable){
+  const oldKey=brickWordKey(target);
+  const remainingCounts=wordCounts(source.filter(other=>other!==target));
+  const candidates=pool.filter(v=>v.width===target.width&&v.key!==oldKey&&
+   (remainingCounts.get(v.key)||0)<2)
+   .sort((a,b)=>Number(currentKeys.has(a.key))-Number(currentKeys.has(b.key)));
+  for(const candidate of candidates){
+   if(source.some(other=>other!==target&&compatibleWordKeys([candidate.key,brickWordKey(other)]))){
+    target.group=candidate.group;target.item=candidate.item;
+    return true;
+   }
+  }
+ }
+ // A two-brick repair is only used when a one-brick repair is impossible.
+ for(let i=0;i<mutable.length;i++)for(let j=i+1;j<mutable.length;j++){
+  const left=mutable[i],right=mutable[j];
+  const remainingCounts=wordCounts(source.filter(other=>other!==left&&other!==right));
+  for(const a of pool){
+   if(a.width!==left.width||(remainingCounts.get(a.key)||0)>=2)continue;
+   for(const b of pool){
+    if(b.width!==right.width||(remainingCounts.get(b.key)||0)>=2||
+       !compatibleWordKeys([a.key,b.key]))continue;
+    left.group=a.group;left.item=a.item;
+    right.group=b.group;right.item=b.item;
+    return true;
+   }
+  }
+ }
+ return false;
+}
+function newTurn(){
+ // Called only after existing bricks have settled AND finished animating.
+ const count=nextCount(),pool=unlockedVocabulary();
+ const TRIALS=24;
+ let best=null,bestRank=-Infinity;
+ for(let attempt=0;attempt<TRIALS;attempt++){
+  const plan=makeSpawnPlan(count,pool);
+  const grid=occupying(plan.simulation);
+  const fillsTop=grid[0].every(x=>x!==null);
+  // Guaranteed playability is essential; two distinct matching pairs are
+  // preferred. Avoid filling the top row if another feasible plan survives.
+  const rank=(fillsTop?-10000:0)+Math.min(plan.pairs,2)*1000
+   +plan.added*25+colourBalanceScore(plan.simulation)*28+Math.random()*10;
+  if(rank>bestRank){best=plan;bestRank=rank}
+  if(!fillsTop&&plan.pairs>=2&&plan.added===count)break;
+ }
+ if(!best)return;
+ // Repair the chosen batch BEFORE it is shown, never after animation begins.
+ // Keep the number of newly added bricks and their landing positions unchanged.
+ if(best.pairs===0&&best.simulation.length>=2){
+  repairUnmatchedBoard(best.simulation,pool);
+ }
+ // Existing bricks may have had their vocabulary changed only as an emergency
+ // deadlock repair. Commit the simulated board atomically.
+ for(const brick of best.simulation){
+  if(brick.isNew){brick.id=++idCounter;delete brick.isNew}
+ }
+ bricks=best.simulation;
+ if(topFull())finish(false);
+}
+function finish(win){ended=true;$('overlay').hidden=false;$('endTitle').textContent=win?'Level complete!':'Game over';$('endDescription').textContent=win?`You reached ${score.toLocaleString()} points in ${matches} matches.`:`The top row is full. You scored ${score.toLocaleString()} points. Try again!`;render()}
+function validSelection(){
+ const selected=selection.map(id=>bricks.find(brick=>brick.id===id));
+ return selected.every(Boolean)&&compatibleWordKeys(selected.map(brickWordKey));
+}
+async function crunch(){
+ if(resolvingTurn)return;
+ const isCorrect=validSelection();
+ resolvingTurn=true;
+ const thisTurn=++turnId;
+ if(!isCorrect){
+  // Incorrect confirmed matches are a turn too: nothing disappears or scores,
+  // but the normal batch of new bricks enters the board. Match count (and thus
+  // difficulty tier) does not rise on a failed attempt.
+  const incoming=nextCount();
+  selection=[];
+  notice.textContent=`Not a match! ${incoming} new bricks incoming.`;
+  render();
+  await new Promise(resolve=>setTimeout(resolve,180));
+  if(thisTurn!==turnId)return;
+  newTurn();
+  resolvingTurn=false;
+  render();
+  return;
+ }
+ const cleared=bricks.filter(b=>selection.includes(b.id));
+ // The original 3-brick bonus is retained. Larger combos gain another 100
+ // pre-reduction points per extra brick, with the existing 15% reduction.
+ const area=cleared.reduce((n,b)=>n+b.width,0);
+ const comboBonus=Math.max(0,cleared.length-2)*100;
+ const gain=Math.round((area*50+comboBonus)*0.85);
+ score+=gain;matches++;
+ bricks=bricks.filter(b=>!selection.includes(b.id));
+ selection=[];
+ // 1. Clear the match; 2. apply gravity; 3. render the falling movement.
+ compact();
+ notice.textContent=`Crunch! +${gain} points · ${cleared.length} bricks cleared.`;
+ render();
+ // The CSS animation must finish before spawning bricks into the settled board.
+ await new Promise(resolve=>setTimeout(resolve,FALL_ANIMATION_MS));
+ if(thisTurn!==turnId)return;
+ resolvingTurn=false;
+ if(score>=TARGET){finish(true);return}
+ // 4. Only now calculate open spaces and add the incoming bricks.
+ newTurn();
+ render();
+}
+function onBrick(id){
+ if(ended||resolvingTurn)return;
+ const index=selection.indexOf(id);
+ if(index>=0){if(selection.length>=2){crunch()}else{selection.splice(index,1);render()}return}
+ const clicked=bricks.find(brick=>brick.id===id);
+ if(!clicked)return;
+ // Only one brick per colour category may be selected at a time.
+ // Selected bricks remain active so the player can deselect or confirm them.
+ const clickedCategory=wordColours.get(brickWordKey(clicked));
+ if(selection.some(selectedId=>{
+  const selected=bricks.find(brick=>brick.id===selectedId);
+  return selected&&wordColours.get(brickWordKey(selected))===clickedCategory;
+ }))return;
+ if(selection.length>=5){
+  notice.textContent='Five bricks selected. Tap a selected brick to confirm, or clear the selection.';
+  return;
+ }
+ selection.push(id);
+ notice.textContent=selection.length>=2?'Tap either selected brick again to confirm.':'Choose another related word (up to five).';
+ render();
+}
+function render(){const existing=new Map([...board.querySelectorAll('.brick')].map(el=>[Number(el.dataset.id),el]));const rect=board.getBoundingClientRect(),cw=rect.width/COLS,ch=rect.height/ROWS;
+ const selectedCategories=new Set(bricks.filter(b=>selection.includes(b.id))
+  .map(b=>wordColours.get(brickWordKey(b))));
  for(const b of bricks){let el=existing.get(b.id);if(!el){el=document.createElement('button');el.type='button';el.dataset.id=b.id;el.addEventListener('click',()=>onBrick(b.id));board.append(el)}existing.delete(b.id);
  const g=groups[b.group];const word=g.items[b.item];
  const category=wordColours.get(wordKey(word));
