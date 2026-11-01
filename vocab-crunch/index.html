@@ -1,4 +1,5 @@
 <!doctype html>
+
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -43,12 +44,20 @@ function wordCounts(source=bricks){
  for(const brick of source){const key=brickWordKey(brick);counts.set(key,(counts.get(key)||0)+1)}
  return counts;
 }
-// Hold back all adjective/adverb descriptors until drops reach 4 bricks per turn.
-// With nextCount() below, this happens after 8 completed matches.
-// Delayed vocabulary also derives from the separate colour lists, so newly
-// added descriptive words automatically unlock with the four-brick phase.
+// GAME PACING — change only these four numbers to experiment.
+// Thresholds count successful matches, not bricks cleared or incorrect attempts.
+// For example, THREE_BRICKS_AT = 6 means the seventh drop (after match 6)
+// contains three bricks. Keep the drop thresholds in ascending order.
+const THREE_BRICKS_AT = 6;
+const FOUR_BRICKS_AT = 10;
+const FIVE_BRICKS_AT = 14;
+const DESCRIPTIVE_UNLOCK_AT = 7;
+
+// Descriptors unlock independently of the drop-size phases.
+// The descriptor vocabulary is built from the colour lists in vocabulary.json.
 let delayedWords = new Set();
-function unlockedWord(word){return nextCount()>=4 || !delayedWords.has(wordKey(word))}
+function descriptorsUnlocked(){return matches>=DESCRIPTIVE_UNLOCK_AT}
+function unlockedWord(word){return descriptorsUnlocked() || !delayedWords.has(wordKey(word))}
 // Soft colour balancing: noun+determiner are one family, verbs another;
 // the unlocked adjectives/adverbs form a third family. Count occupied
 // *cells*, so a two-wide brick contributes twice as much to the visual mix.
@@ -57,7 +66,7 @@ function colourFamily(v){
  return delayedWords.has(wordKey(word))?'descriptor':groups[v.group].family;
 }
 function colourTargets(){
- return nextCount()>=4
+ return descriptorsUnlocked()
   ? {noun:0.40,verb:0.40,descriptor:0.20}
   : {noun:0.50,verb:0.50,descriptor:0};
 }
@@ -170,7 +179,12 @@ function compact(){
  }
 }
 function topFull(){const g=occupying();return g[0].every(x=>x!==null)}
-function nextCount(){return Math.min(5,2+Math.floor(matches/4))}
+function nextCount(){
+ if(matches>=FIVE_BRICKS_AT)return 5;
+ if(matches>=FOUR_BRICKS_AT)return 4;
+ if(matches>=THREE_BRICKS_AT)return 3;
+ return 2;
+}
 // A turn is planned on a copy of the settled board before any new bricks appear.
 // Every planned landing is checked against the SAME clear drop path and width
 // rules that normal spawning uses. No occupied cells or overhangs are bypassed.
