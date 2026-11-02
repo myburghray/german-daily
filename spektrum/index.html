@@ -67,25 +67,78 @@
       .actions button { padding: 6px 8px; }
       #feedback { padding: 6px 8px; margin-top: 5px; }
     }
+
+    /* Two independent clues and compact mobile-friendly help button. */
+    .hint-controls{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-items:stretch}
+    .hint-controls>.clue-space{min-width:0;display:flex;align-items:stretch}
+    .hint-controls .hint-btn{height:100%;min-height:40px}
+    .hint-controls .hint{border:1px solid #d7dfd4;background:#fff;border-radius:10px;margin:0;padding:7px 8px;width:100%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;line-height:1.25;overflow-wrap:anywhere}
+    .hint-controls .hint[hidden]{display:none}
+    #translationButton:disabled{background:#e2e4df;color:#8b9089;opacity:1;border-color:#d3d8d1}
+    .help-row{display:flex;justify-content:center;margin-top:10px;flex:0 0 auto}
+    .help-button{font-size:12px;padding:6px 12px;border:0;background:transparent;color:#62756a}
+    .help-overlay[hidden]{display:none}
+    .help-overlay{position:fixed;inset:0;z-index:1000;background:rgba(18,29,23,.65);display:flex;align-items:center;justify-content:center;padding:16px}
+    .help-dialog{position:relative;background:#fff;color:#24302d;width:min(440px,100%);max-height:min(86dvh,740px);overflow-y:auto;border-radius:18px;padding:23px 22px;box-shadow:0 14px 50px #0004;line-height:1.4}
+    .help-dialog h2{font-size:21px;margin:0 35px 12px 0}
+    .help-dialog p{font-size:14px;margin:0 0 12px}
+    .help-dialog ol{font-size:14px;padding-left:20px;margin:0 0 14px}
+    .help-dialog li{margin-bottom:9px}
+    .help-close{position:absolute;top:12px;right:12px;padding:6px 10px}
+    @media(max-width:600px) and (orientation:portrait){
+      .hint-controls{gap:7px}.hint-controls .hint-btn{min-height:31px;padding:5px 6px;font-size:11px}
+      .hint-controls .hint{font-size:10px;padding:5px 4px}
+      .help-row{margin-top:2px}.help-button{padding:3px 9px;font-size:11px}
+      .intro p{margin-bottom:6px}
+    }
+    @media(max-width:600px) and (orientation:portrait) and (max-height:660px){
+      .help-row{margin-top:0}.help-button{padding:2px 8px;font-size:10px}
+      .hint-controls .hint-btn{min-height:26px;padding:3px 4px}
+    }
   </style>
 </head>
 <body>
 <main class="app">
   <header><div><h1>Spektrum</h1><p class="eyebrow" id="puzzleDate">--/--</p></div><div class="logo" aria-hidden="true">🧠</div></header>
-  <section class="intro"><h2>What's the hidden connection?</h2><p>Arrange the six German words along a mystery continuum.</p><button type="button" id="hintButton" class="hint-btn">💡 Hint</button><div id="hint" class="hint" hidden></div></section>
+  <section class="intro"><h2>What's the hidden connection?</h2><p>Arrange the six German words along a mystery continuum.</p>
+    <div class="hint-controls">
+      <button type="button" id="translationButton" class="hint-btn" disabled>Translate (3)</button>
+      <div class="clue-space"><button type="button" id="hintButton" class="hint-btn">💡 Hint</button><div id="hint" class="hint" hidden></div></div>
+    </div>
+  </section>
   <div class="game" id="game">
     <section><p class="section-title">Word bank</p><div id="bank" class="bank"></div></section>
-    <section><div class="spectrum"><div class="end">↑ MOST</div><div id="slots" class="spectrum"></div><div class="end">↓ LEAST</div></div></section>
+    <section><p class="section-title">Your continuum</p><div class="spectrum"><div class="end">↑ MOST</div><div id="slots" class="spectrum"></div><div class="end">↓ LEAST</div></div></section>
   </div>
   <div id="feedback" role="status" aria-live="polite" hidden></div>
   <div class="actions"><button type="button" class="primary" id="checkButton">Check</button><button type="button" class="secondary" id="resetButton">↻ Reset</button></div>
+  <div class="help-row"><button type="button" id="helpButton" class="help-button">ⓘ How to Play</button></div>
   <footer></footer>
+  <div id="helpOverlay" class="help-overlay" hidden>
+    <section class="help-dialog" role="dialog" aria-modal="true" aria-labelledby="helpTitle" tabindex="-1">
+      <button type="button" id="helpClose" class="help-close" aria-label="Close instructions">✕</button>
+      <h2 id="helpTitle">How to Play Spektrum</h2>
+      <p>Six German words belong on a hidden scale. Can you find their connection?</p>
+      <ol>
+        <li><strong>Find the connection.</strong> Think about what the words have in common.</li>
+        <li><strong>Arrange the words.</strong> Tap to fill the scale from bottom (least) to top (most). Tap a placed word to remove it.</li>
+        <li><strong>Check your theory.</strong> If the order is wrong, rearrange and try again.</li>
+        <li><strong>Need help?</strong> Reveal the clue or temporarily translate the words up to three times.</li>
+      </ol>
+      <p><strong>Find the correct order to solve today's mystery!</strong></p>
+    </section>
+  </div>
 </main>
 <script>
   // Puzzle content is loaded by date from puzzles.json.
   let words = [];
   let answerBottomToTop = [];
   let puzzleHint = '';
+  let translations = {};
+  let translationsRemaining = 3;
+  let translationsVisible = false;
+  let translationTimer = null;
+  let clueRevealed = false;
   let placed = []; // first word is the bottom of the continuum
   let attempts = 0;
   let solved = false;
@@ -96,12 +149,46 @@
   const feedback = document.getElementById('feedback');
   const hint = document.getElementById('hint');
   const hintButton = document.getElementById('hintButton');
+  const translationButton = document.getElementById('translationButton');
+  const helpButton = document.getElementById('helpButton');
+  const helpOverlay = document.getElementById('helpOverlay');
+  const helpClose = document.getElementById('helpClose');
+  const helpDialog = helpOverlay.querySelector('.help-dialog');
   const puzzleDate = document.getElementById('puzzleDate');
   const game = document.getElementById('game');
   const resetButton = document.getElementById('resetButton');
   check.disabled = true;
   hintButton.disabled = true;
+  translationButton.disabled = true;
   resetButton.disabled = true;
+  function displayWord(word){
+    return translationsVisible && Object.prototype.hasOwnProperty.call(translations,word) ? translations[word] : word;
+  }
+  function updateTranslationButton(){
+    translationButton.textContent = translationsRemaining > 0 ? `Translate (${translationsRemaining})` : 'Translate';
+    translationButton.disabled = solved || words.length===0 || translationsRemaining===0 || translationsVisible || !words.every(w=>typeof translations[w]==='string' && translations[w].trim());
+    translationButton.title = words.length && !words.every(w=>typeof translations[w]==='string' && translations[w].trim()) ? 'Translations not yet available for this puzzle' : '';
+  }
+  function saveHintState(){
+    if(!currentPuzzleDate) return;
+    try{localStorage.setItem(`spektrum-hints-${currentPuzzleDate}`,JSON.stringify({remaining:translationsRemaining,clue:clueRevealed}));}catch(error){console.warn('Could not save hint state:',error)}
+  }
+  function restoreHintState(){
+    try{
+      const raw=localStorage.getItem(`spektrum-hints-${currentPuzzleDate}`);
+      if(!raw)return;
+      const state=JSON.parse(raw);
+      if(Number.isInteger(state.remaining))translationsRemaining=Math.max(0,Math.min(3,state.remaining));
+      clueRevealed=!!state.clue;
+    }catch(error){console.warn('Could not restore hint state:',error)}
+  }
+  function showClue(){
+    clueRevealed=true;hint.hidden=false;hintButton.hidden=true;saveHintState();
+  }
+  function stopTranslations(){
+    if(translationTimer!==null){clearTimeout(translationTimer);translationTimer=null;}
+    translationsVisible=false;render();updateTranslationButton();
+  }
   function render() {
     bank.replaceChildren();
     for (const word of words) {
@@ -119,7 +206,7 @@
       const btn=document.createElement('button');btn.type='button';
       btn.className='slot'+(placed[index]?' filled':'')+(solved?' correct':'');
       if (placed[index]) {
-        const label=document.createElement('span');label.textContent=placed[index];btn.append(label);
+        const label=document.createElement('span');label.textContent=displayWord(placed[index]);btn.append(label);
         if(!solved){const x=document.createElement('span');x.className='remove';x.textContent='✕';btn.append(x)}
         btn.disabled=solved;
         btn.setAttribute('aria-label',solved?placed[index]:'Remove '+placed[index]);
@@ -128,13 +215,14 @@
       row.append(rail,btn);slots.append(row);
     }
     check.disabled=solved||placed.length!==words.length||words.length===0;
+    updateTranslationButton();
   }
   function clearFeedback(){feedback.hidden=true;feedback.textContent=''}
   function showSolvedResult() {
     solved = true;
     placed = [...answerBottomToTop];
-    hint.hidden = false;
-    hintButton.hidden = true;
+    stopTranslations();
+    showClue();
     feedback.hidden = false;
     feedback.replaceChildren();
     const title = document.createElement('strong');
@@ -162,7 +250,22 @@
       return true;
     } catch (error) { console.warn('Could not restore puzzle completion:', error); return false; }
   }
-  hintButton.addEventListener('click',()=>{hint.hidden=false;hintButton.hidden=true});
+  hintButton.addEventListener('click',showClue);
+  translationButton.addEventListener('click',()=>{
+    if(translationButton.disabled || translationsRemaining===0)return;
+    translationsRemaining--;
+    translationsVisible=true;
+    saveHintState();
+    render();
+    translationTimer=setTimeout(stopTranslations,4000);
+  });
+  let previousFocus=null;
+  function openHelp(){previousFocus=document.activeElement;helpOverlay.hidden=false;helpDialog.focus();}
+  function closeHelp(){helpOverlay.hidden=true;if(previousFocus?.focus)previousFocus.focus();}
+  helpButton.addEventListener('click',openHelp);
+  helpClose.addEventListener('click',closeHelp);
+  helpOverlay.addEventListener('click',event=>{if(event.target===helpOverlay)closeHelp()});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!helpOverlay.hidden)closeHelp()});
   check.addEventListener('click',()=>{
     attempts++;
     const correct=placed.length===answerBottomToTop.length && placed.every((w,i)=>w===answerBottomToTop[i]);
@@ -175,7 +278,7 @@
       render();
     }
   });
-  resetButton.addEventListener('click',()=>{placed=[];attempts=0;solved=false;hint.hidden=true;hintButton.hidden=false;clearFeedback();render()});
+  resetButton.addEventListener('click',()=>{placed=[];attempts=0;solved=false;stopTranslations();clearFeedback();render()});
 
   // Use the calendar date in Germany, for the same daily puzzle worldwide.
   function todayInGermany() {
@@ -191,6 +294,7 @@
     check.disabled = true;
     resetButton.disabled = true;
     hintButton.hidden = true;
+    translationButton.disabled=true;
     feedback.hidden = false;
     feedback.textContent = message;
   }
@@ -219,12 +323,17 @@
       words = puzzle.words;
       answerBottomToTop = puzzle.answer;
       puzzleHint = puzzle.hint;
+      translations = (puzzle.translations && typeof puzzle.translations==='object' && !Array.isArray(puzzle.translations)) ? puzzle.translations : {};
       hint.textContent = `💡 ${puzzleHint}`;
       placed = [];
       attempts = 0;
       solved = false;
       hint.hidden = true;
       hintButton.hidden = false;
+      translationsRemaining=3;translationsVisible=false;clueRevealed=false;
+      if(translationTimer!==null){clearTimeout(translationTimer);translationTimer=null;}
+      restoreHintState();
+      if(clueRevealed){hint.hidden=false;hintButton.hidden=true;}
       hintButton.disabled = false;
       resetButton.disabled = false;
       clearFeedback();
