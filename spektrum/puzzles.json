@@ -1,6 +1,8 @@
 {
   "2026-10-30": {
-    "hint": "Akzeptanz in einer Bibliothek",
+    "hint": "Bitte sei leise",
+    "hintEnglish": "Please be quiet",
+    "solution": "Akzeptanz in einer Bibliothek - Most acceptable to do in a library",
     "words": [
       "Lesen",
       "Klavier spielen",
@@ -27,7 +29,9 @@
     }
   },
   "2026-10-31": {
-    "hint": "Zerbrechlichkeit bei Stürzen",
+    "hint": "Krach!",
+    "hintEnglish": "Crash!",
+    "solution": "Zerbrechlichkeit bei Stürzen - Most likely to break when dropped",
     "words": [
       "Kokosnuss",
       "Tasche",
@@ -55,7 +59,9 @@
   },
   
   "2026-11-01": {
-    "hint": "Grobheit",
+    "hint": "Achte auf deine Manieren.",
+    "hintEnglish": "Mind your manners",
+    "solution": "Grobheit - Rudeness",
     "words": [
       "Lächeln",
       "Lügen",
