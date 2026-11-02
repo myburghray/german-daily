@@ -1,0 +1,78 @@
+{
+  "2026-10-30": {
+    "hint": "Akzeptanz in einer Bibliothek",
+    "words": [
+      "Lesen",
+      "Klavier spielen",
+      "Hunde ausführen",
+      "Studieren",
+      "Videospiel",
+      "Wordle"
+    ],
+    "answer": [
+      "Hunde ausführen",
+      "Klavier spielen",
+      "Videospiel",
+      "Wordle",
+      "Studieren",
+      "Lesen"
+    ]
+  },
+  "2026-10-31": {
+    "hint": "Zerbrechlichkeit bei Stürzen",
+    "words": [
+      "Kokosnuss",
+      "Tasche",
+      "Tasse",
+      "Ei",
+      "Lego-Stein",
+      "Fußball"
+    ],
+    "answer": [
+      "Lego-Stein",
+      "Fußball",
+      "Tasche",
+      "Kokosnuss",
+      "Tasse",
+      "Ei"
+    ]
+  },
+  "2026-11-01": {
+    "hint": "Grobheit",
+    "words": [
+      "Lächeln",
+      "Lügen",
+      "Komplimente machen",
+      "Gähnen",
+      "Unterbrechen",
+      "Beleidigen"
+    ],
+    "answer": [
+      "Komplimente machen",
+      "Lächeln",
+      "Gähnen",
+      "Unterbrechen",
+      "Lügen",
+      "Beleidigen"
+    ]
+  },
+  "2026-11-02": {
+    "hint": "Schlimmster Fleck",
+    "words": [
+      "Senf",
+      "Tinte",
+      "Wasser",
+      "Acrylfarbe",
+      "Bleichen",
+      "Kaffee"
+    ],
+    "answer": [
+      "Wasser",
+      "Kaffee",
+      "Senf",
+      "Acrylfarbe",
+      "Tinte",
+      "Bleichen"
+    ]
+  }
+}
