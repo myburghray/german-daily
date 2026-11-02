@@ -638,14 +638,22 @@ async function loadDailyVocabulary(){
  notice.textContent='Loading vocabulary…';
  try{
   // A relative path works at /vocab-crunch/ on GitHub Pages.
-  const response=await fetch('./vocabulary.json',{cache:'no-store'});
-  if(!response.ok)throw new Error(`Cannot load vocabulary.json: HTTP ${response.status}`);
-  const config=await response.json();
+  const [vocabResponse, dictionaryResponse] = await Promise.all([
+  fetch('./vocabulary.json', {cache:'no-store'}),
+  fetch('./dictionary.json', {cache:'no-store'})
+  ]);
+
+  if (!vocabResponse.ok || !dictionaryResponse.ok) {
+  throw new Error('Could not load vocabulary or dictionary');
+  }
+
+  const config = await vocabResponse.json();
+  const dictionary = await dictionaryResponse.json();
   const date=todayInGermany();
   const poolName=config.schedule?.[date]||config.defaultPool;
   const pool=config.pools?.[poolName];
   if(!pool)throw new Error(`No vocabulary pool for ${date}`);
-  installVocabulary({...pool, colourWords: config.colourWords});
+  installVocabulary({...pool, colourWords: dictionary});
   vocabularyLoaded=true;
   $('restart').disabled=false;
   $('showCombinations').disabled=false;
