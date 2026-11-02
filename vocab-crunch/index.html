@@ -548,9 +548,10 @@ async function loadDailyVocabulary(){
   const poolName=config.schedule?.[date]||config.defaultPool;
   const pool=config.pools?.[poolName];
   if(!pool)throw new Error(`No vocabulary pool for ${date}`);
-  installVocabulary(pool);
+  installVocabulary({...pool, colourWords: config.colourWords});
   vocabularyLoaded=true;
   $('restart').disabled=false;
+  $('showCombinations').disabled=false;
   $('restart').textContent='↻ Restart';
   reset();
  }catch(error){
