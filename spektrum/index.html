@@ -194,7 +194,7 @@
     for (const word of words) {
       const btn = document.createElement('button');
       btn.type='button'; btn.className='word' + (placed.includes(word)?' used':'');
-      btn.textContent=(placed.includes(word)?'✓ ':'')+word;
+      btn.textContent=(placed.includes(word)?'✓ ':'')+displayWord(word);
       btn.disabled=solved||placed.includes(word);
       btn.addEventListener('click',()=>{placed.push(word);clearFeedback();render()});
       bank.append(btn);
