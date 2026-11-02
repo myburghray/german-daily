@@ -113,6 +113,7 @@
   },
   "pools": {
     "pets": {
+      "dayType": "noun",
       "theme": "Haustiere",
       "targetScore": 2000,
       "groups": [
@@ -257,6 +258,7 @@
       ]
     },
     "cafe": {
+      "dayType": "noun",
       "theme": "Café",
       "targetScore": 2000,
       "groups": [
