@@ -113,30 +113,10 @@
   },
   "pools": {
     "pets": {
-      "dayType": "noun",
+      "dayType": "verb",
       "theme": "Haustiere",
       "targetScore": 2000,
       "groups": [
-        {
-          "family": "noun",
-          "items": [
-            "Hund",
-            "der",
-            "dog",
-            "groß",
-            "big"
-          ]
-        },
-        {
-          "family": "noun",
-          "items": [
-            "Katze",
-            "die",
-            "cat",
-            "dünn",
-            "thin"
-          ]
-        },
         {
           "family": "verb",
           "items": [
@@ -171,16 +151,6 @@
             "miaute",
             "leise",
             "quietly"
-          ]
-        },
-        {
-          "family": "noun",
-          "items": [
-            "Vogel",
-            "der",
-            "bird",
-            "klein",
-            "small"
           ]
         },
         {
@@ -293,33 +263,6 @@
           ]
         },
         {
-          "family": "verb",
-          "items": [
-            "bezahlen",
-            "pay",
-            "vollständig",
-            "in full"
-          ]
-        },
-        {
-          "family": "verb",
-          "items": [
-            "bezahlt",
-            "paid",
-            "vollständig",
-            "in full"
-          ]
-        },
-        {
-          "family": "verb",
-          "items": [
-            "bringen",
-            "bring",
-            "schnell",
-            "quickly"
-          ]
-        },
-        {
           "family": "noun",
           "items": [
             "Kaffee",
@@ -337,50 +280,6 @@
             "Salad",
             "green",
             "der"
-          ]
-        },
-        {
-          "family": "verb",
-          "items": [
-            "Essen",
-            "eat",
-            "hungrig",
-            "hungrily"
-          ]
-        },
-        {
-          "family": "verb",
-          "items": [
-            "Aß",
-            "ate",
-            "hungrig",
-            "hungrily"
-          ]
-        },
-        {
-          "family": "verb",
-          "items": [
-            "gebracht",
-            "brought",
-            "schnell"
-          ]
-        },
-        {
-          "family": "verb",
-          "items": [
-            "kochen",
-            "cook",
-            "gut",
-            "well"
-          ]
-        },
-        {
-          "family": "verb",
-          "items": [
-            "gekocht",
-            "cooked",
-            "gut",
-            "well"
           ]
         },
         {
