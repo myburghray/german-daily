@@ -63,11 +63,11 @@
 <header><div><h1>Vocab Crunch</h1><small id="theme">Prototype 01 · Haustiere</small></div><button id="restart">↻ Restart</button></header>
 <div class="stats"><div class="stat"><small>Score</small><b id="score">0</b></div><div class="stat"><small>Target</small><b id="target">2,000</b></div><div class="stat"><small>Next drop</small><b id="next">+2</b></div></div>
 <div class="progress"><div id="progress"></div></div>
-<p class="game-instructions">Select 2–5 related words, with no more than one brick of each colour. Tap a selected brick again to crunch your combination and earn points.</p>
+<p class="game-instructions" id="gameInstructions">Select 2–5 related words, with no more than one brick of each colour. Tap a selected brick again to crunch your combination and earn points.</p>
 <div class="board" id="board" aria-label="Vocabulary tile game board"><div class="overlay" id="overlay" hidden><h2 id="endTitle"></h2><p id="endDescription"></p><button class="primary" id="playAgain">Play again</button></div></div>
 <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
 <div class="game-buttons"><button class="primary" id="clear">Clear Selection</button><button id="showCombinations" class="combinations-button" type="button" disabled>Show Combinations</button></div>
-<div class="legend"><span><i class="dot" style="background:#a4ddd7"></i>English Nouns/Verbs</span><span><i class="dot" style="background:#eeb0aa"></i>Deutsch Nouns/Verbs</span><span><i class="dot" style="background:#bee3b6"></i>Descriptive English Words</span><span><i class="dot" style="background:#f4df8c"></i>Descriptive Deutsch Words</span><span><i class="dot" style="background:#bbd9f3"></i>Determiners</span></div>
+<div class="legend"><span><i class="dot" style="background:#a4ddd7"></i><span id="legendMainEnglish">English Nouns/Verbs</span></span><span><i class="dot" style="background:#eeb0aa"></i><span id="legendMainDeutsch">Deutsch Nouns/Verbs</span></span><span><i class="dot" style="background:#bee3b6"></i><span id="legendDescEnglish">Descriptive English Words</span></span><span><i class="dot" style="background:#f4df8c"></i><span id="legendDescDeutsch">Descriptive Deutsch Words</span></span><span><i class="dot" style="background:#bbd9f3"></i><span id="legendFifth">Determiners</span></span></div>
 
 <div id="combinationsModal" class="combinations-modal" hidden>
   <section class="combinations-dialog" role="dialog" aria-modal="true" aria-labelledby="combinationsTitle" tabindex="-1">
@@ -81,6 +81,21 @@
 // The 15 matching sets now live in vocabulary.json, separate from this game.
 // Each dated entry in the JSON schedule selects a vocabulary pool.
 let groups = [];
+// Each pool may declare dayType: "noun" or "verb". Existing mixed pools remain supported.
+let dayType = 'mixed';
+function updateDayLabels(type){
+ const labels={
+  noun:{mainEnglish:'English Nouns',mainDeutsch:'German Nouns',descEnglish:'English Adjectives',descDeutsch:'German Adjectives',fifth:'Determiners',instructions:'Match nouns with their translations, articles and describing words. Select 2–5 bricks of different colours, then tap a selected brick again to crunch.'},
+  verb:{mainEnglish:'English Verbs',mainDeutsch:'German Verbs',descEnglish:'English Adverbs',descDeutsch:'German Adverbs',fifth:'Prepositions',instructions:'Match verbs with their translations, adverbs and prepositions. Select 2–5 bricks of different colours, then tap a selected brick again to crunch.'},
+  mixed:{mainEnglish:'English Nouns/Verbs',mainDeutsch:'Deutsch Nouns/Verbs',descEnglish:'Descriptive English Words',descDeutsch:'Descriptive Deutsch Words',fifth:'Determiners',instructions:'Select 2–5 related words, with no more than one brick of each colour. Tap a selected brick again to crunch your combination and earn points.'}
+ }[type];
+ $('gameInstructions').textContent=labels.instructions;
+ $('legendMainEnglish').textContent=labels.mainEnglish;
+ $('legendMainDeutsch').textContent=labels.mainDeutsch;
+ $('legendDescEnglish').textContent=labels.descEnglish;
+ $('legendDescDeutsch').textContent=labels.descDeutsch;
+ $('legendFifth').textContent=labels.fifth;
+}
 // Match by visible vocabulary, not by the particular group that spawned a brick.
 // Keep individual forms distinct: e.g. bark and barked belong to different rows.
 function wordKey(text){return text.normalize('NFC').trim().toLocaleLowerCase('de')}
@@ -560,6 +575,11 @@ function installVocabulary(pool){
     !pool.colourWords||typeof pool.colourWords!=='object'){
   throw new Error('Missing groups or colourWords in vocabulary.json');
  }
+ const specifiedType=pool.dayType;
+ if(specifiedType!==undefined && !['noun','verb','mixed'].includes(specifiedType)){
+  throw new Error('dayType must be "noun", "verb", or "mixed"');
+ }
+ const selectedType=specifiedType||'mixed';
  const categories=Object.keys(colourClass);
  const newColours=new Map();
  for(const category of categories){
@@ -605,6 +625,8 @@ function installVocabulary(pool){
   }
  }
  TARGET=target;
+ dayType=selectedType;
+ updateDayLabels(dayType);
  $('theme').textContent=`Prototype 01 · ${pool.theme||'Daily vocabulary'}`;
 }
 
