@@ -1,8 +1,8 @@
 {
   "defaultPool": "pets",
   "schedule": {
-    "2026-11-01": "pets",
-    "2026-11-02": "cafe"
+    "2026-11-02": "pets",
+    "2026-11-03": "cafe"
   },
   "colourWords": {
     "MainEnglish": [
