@@ -1,0 +1,73 @@
+{
+  "MainEnglish": [
+    "bark",
+    "barked",
+    "Meow",
+    "Meowed",
+    "chirp",
+    "Chirped",
+    "sit",
+    "sat",
+    "scratch",
+    "scratched",
+    "fly",
+    "flew",
+    "Waitress",
+    "Waiter",
+    "Check",
+    "Coffee",
+    "Salad",
+    "Fries",
+    "Cheese"
+  ],
+  "MainDeutsch": [
+    "Bellen",
+    "Bellte",
+    "miau",
+    "miaute",
+    "Zwitchern",
+    "zwitscherte",
+    "Sitzen",
+    "Saß",
+    "Kratz",
+    "Verkratzt",
+    "Fliegen",
+    "Flog",
+    "Kellnerin",
+    "Kellner",
+    "Rechnung",
+    "Kaffee",
+    "Salat",
+    "Pommes Frites",
+    "Käse"
+  ],
+  "DescriptiveEnglish": [
+    "loud",
+    "quietly",
+    "happily",
+    "quickly",
+    "nice",
+    "expensive",
+    "black",
+    "green",
+    "salty",
+    "creamy"
+  ],
+  "DescriptiveDeutsch": [
+    "laut",
+    "leise",
+    "fröhlich",
+    "ruhig",
+    "schnell",
+    "nette",
+    "teuer",
+    "schwarzer",
+    "grün",
+    "salzig",
+    "cremig"
+  ],
+  "Determiners": [
+    "der",
+    "die"
+  ]
+}
