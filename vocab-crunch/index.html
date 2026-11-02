@@ -6,6 +6,7 @@
 <style>
 :root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#23352f;background:#f3f5ef}*{box-sizing:border-box}body{margin:0;padding:12px}.app{max-width:610px;margin:auto;background:#fff;border:1px solid #dee4db;border-radius:20px;padding:16px;box-shadow:0 8px 30px #1c362109}header{display:flex;justify-content:space-between;align-items:center;gap:10px}h1{font-size:27px;margin:0;letter-spacing:-.8px}small{color:#657668}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.stat{background:#f0f3ed;padding:9px;border-radius:10px;text-align:center}.stat b{display:block;font-size:18px}.stat small{font-size:10px;text-transform:uppercase;letter-spacing:.08em}.progress{height:7px;background:#dfe7db;border-radius:10px;overflow:hidden;margin-bottom:10px}.progress div{height:100%;background:#558a67;width:0;transition:width .2s}.board{position:relative;border-radius:12px;background:#e7ece5;overflow:hidden;border:2px solid #c9d5c8;touch-action:manipulation;--cell:48px;height:calc(var(--cell)*8);background-image:linear-gradient(to right,#ffffff60 1px,transparent 1px),linear-gradient(to bottom,#ffffff60 1px,transparent 1px);background-size:calc(100%/5) var(--cell)}.brick{position:absolute;border:1.5px solid #0002;border-radius:8px;display:flex;justify-content:center;align-items:center;text-align:center;padding:3px;font-weight:700;line-height:1.15;font-size:clamp(10px,2.8vw,14px);box-shadow:0 2px 2px #0001;cursor:pointer;user-select:none;transition:top .24s ease,left .24s ease,background .15s;overflow-wrap:anywhere}.brick.selected{outline:3px solid #262d28;outline-offset:-4px;filter:brightness(.76) saturate(1.08);box-shadow:inset 0 0 0 2px #0002,0 2px 2px #0001}.brick.category-blocked{filter:grayscale(1);opacity:.35;cursor:default;box-shadow:none}.brick.main-english{background:#a4ddd7;color:#134e4a}.brick.main-deutsch{background:#eeb0aa;color:#742f2c}.brick.descriptive-english{background:#bee3b6;color:#295a34}.brick.descriptive-deutsch{background:#f4df8c;color:#685110}.brick.determiner{background:#bbd9f3;color:#244c71}.brick:focus-visible{outline:3px solid black}.toolbar{margin-top:11px;display:flex;align-items:center;justify-content:space-between;gap:8px}button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid #c7d4c5;padding:11px 14px;background:white;color:#263a2d}.primary{background:#285f43;color:white;border-color:#285f43;font-weight:700}.primary:disabled{opacity:.45;cursor:default}.notice{font-size:13px;color:#506456;margin:10px 0;min-height:35px;line-height:1.4}.legend{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:#607065;margin-top:8px}.dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px}.overlay{position:absolute;inset:0;background:#ffffffdd;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:25px;gap:12px}.overlay[hidden]{display:none}.overlay h2{margin:0;font-size:26px}.overlay p{max-width:270px;line-height:1.5}.hint{font-size:12px;margin-top:9px;color:#627267}@media(max-width:500px){body{padding:0;background:#fff}.app{border:0;border-radius:0;box-shadow:none;padding:10px 12px}h1{font-size:23px}.stats{margin:8px 0}.stat{padding:6px}.board{--cell:min(calc((100vw - 28px)/5),calc((100dvh - 245px)/8));min-height:280px}.brick{font-size:clamp(9px,2.8vw,13px)}.notice{font-size:12px;margin:7px 0;min-height:30px}}@media(max-height:670px){.legend,.hint{display:none}.app{padding-top:7px}.board{--cell:min(calc((100vw - 28px)/5),calc((100dvh - 210px)/8))}}
 
+.board .brick.dropping{transition:top 750ms cubic-bezier(.22,.68,.36,1);pointer-events:none}
 /* Compact, scrollable reference sheet: shares the game's brick colour classes. */
 .combinations-row{display:flex;justify-content:center;margin:8px 0 2px}
 .combinations-button{padding:7px 14px;font-size:12px;font-weight:650}
@@ -164,7 +165,10 @@ const $=id=>document.getElementById(id);
 let bricks=[],selection=[],score=0,matches=0,idCounter=0,ended=false;
 let resolvingTurn=false,turnId=0;
 let vocabularyLoaded=false;
-const FALL_ANIMATION_MS=260; // CSS top transition is .24s; leave a small buffer.
+const FALL_ANIMATION_MS=260; // Existing bricks settling under gravity.
+const DROP_DURATION_MS=750; // Slow arrival animation; adjust to taste.
+const DROP_STAGGER_MS=110; // Delay between incoming bricks.
+let arrivingIds=new Set();
 function rand(n){return Math.floor(Math.random()*n)}
 function occupying(source=bricks){const g=Array.from({length:ROWS},()=>Array(COLS).fill(null));for(const b of source)for(let c=b.x;c<b.x+b.width;c++)g[b.y][c]=b.id;return g}
 function fits(g,x,y,width){if(x<0||x+width>COLS||y<0||y>=ROWS)return false;for(let c=x;c<x+width;c++)if(g[y][c]!==null)return false;return true}
@@ -367,6 +371,32 @@ function newTurn(){
  bricks=best.simulation;
  if(topFull())finish(false);
 }
+// Animate only the newly spawned bricks. Their final cells are already determined
+// by the original spawning algorithm; this changes visual positions only.
+async function showIncomingBricks(previousIds,token){
+ const incoming=bricks.filter(b=>!previousIds.has(b.id));
+ arrivingIds=new Set(incoming.map(b=>b.id));
+ render();
+ const arrivals=incoming.map((b,index)=>({
+  el:[...board.querySelectorAll('.brick')].find(el=>Number(el.dataset.id)===b.id),
+  brick:b,index
+ }));
+ // Give the browser a chance to paint the off-grid starting positions.
+ await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+ if(token!==turnId)return;
+ const cellHeight=board.getBoundingClientRect().height/ROWS;
+ arrivals.forEach(({el,brick,index})=>{
+  setTimeout(()=>{
+   if(token!==turnId||!el?.isConnected)return;
+   el.style.top=`${brick.y*cellHeight+2}px`;
+  },index*DROP_STAGGER_MS);
+ });
+ const total=DROP_DURATION_MS+Math.max(0,incoming.length-1)*DROP_STAGGER_MS+30;
+ await new Promise(resolve=>setTimeout(resolve,total));
+ if(token!==turnId)return;
+ arrivingIds.clear();
+ for(const {el} of arrivals)el?.classList.remove('dropping');
+}
 function finish(win){ended=true;$('overlay').hidden=false;$('endTitle').textContent=win?'Level complete!':'Game over';$('endDescription').textContent=win?`You reached ${score.toLocaleString()} points in ${matches} matches.`:`The top row is full. You scored ${score.toLocaleString()} points. Try again!`;render()}
 function validSelection(){
  const selected=selection.map(id=>bricks.find(brick=>brick.id===id));
@@ -387,7 +417,10 @@ async function crunch(){
   render();
   await new Promise(resolve=>setTimeout(resolve,180));
   if(thisTurn!==turnId)return;
+  const previousIds=new Set(bricks.map(b=>b.id));
   newTurn();
+  if(!ended)await showIncomingBricks(previousIds,thisTurn);
+  if(thisTurn!==turnId)return;
   resolvingTurn=false;
   render();
   return;
@@ -408,10 +441,13 @@ async function crunch(){
  // The CSS animation must finish before spawning bricks into the settled board.
  await new Promise(resolve=>setTimeout(resolve,FALL_ANIMATION_MS));
  if(thisTurn!==turnId)return;
- resolvingTurn=false;
- if(score>=TARGET){finish(true);return}
- // 4. Only now calculate open spaces and add the incoming bricks.
+ if(score>=TARGET){resolvingTurn=false;finish(true);return}
+ // 4. Spawn as before, then animate the new bricks from above the grid.
+ const previousIds=new Set(bricks.map(b=>b.id));
  newTurn();
+ if(!ended)await showIncomingBricks(previousIds,thisTurn);
+ if(thisTurn!==turnId)return;
+ resolvingTurn=false;
  render();
 }
 function onBrick(id){
@@ -444,10 +480,10 @@ function render(){const existing=new Map([...board.querySelectorAll('.brick')].m
  const type=colourClass[category];
  const isSelected=selection.includes(b.id);
  const isCategoryBlocked=!isSelected&&selectedCategories.has(category);
- el.className=`brick ${type}${isSelected?' selected':''}${isCategoryBlocked?' category-blocked':''}`;
- el.disabled=isCategoryBlocked;
+ el.className=`brick ${type}${isSelected?' selected':''}${isCategoryBlocked?' category-blocked':''}${arrivingIds.has(b.id)?' dropping':''}`;
+ el.disabled=isCategoryBlocked||resolvingTurn;
  el.setAttribute('aria-disabled',isCategoryBlocked?'true':'false');
- el.textContent=g.items[b.item];el.style.left=`${b.x*cw+2}px`;el.style.top=`${b.y*ch+2}px`;el.style.width=`${b.width*cw-4}px`;el.style.height=`${(ch-4)*1.005}px`;el.setAttribute('aria-pressed',selection.includes(b.id)?'true':'false');}
+ el.textContent=g.items[b.item];el.style.left=`${b.x*cw+2}px`;if(el.classList.contains('dropping')&&!el.dataset.dropStarted){el.style.top=`${-ch-8}px`;el.dataset.dropStarted='1'}else if(!el.classList.contains('dropping')){el.style.top=`${b.y*ch+2}px`;} el.style.width=`${b.width*cw-4}px`;el.style.height=`${(ch-4)*1.005}px`;el.setAttribute('aria-pressed',selection.includes(b.id)?'true':'false');}
  for(const el of existing.values())el.remove();$('score').textContent=score.toLocaleString();$('target').textContent=TARGET.toLocaleString();$('next').textContent='+'+nextCount();$('progress').style.width=Math.min(100,score/TARGET*100)+'%';$('clear').disabled=resolvingTurn;}
 // A reference sheet based on the 15 daily JSON groups (not every subset).
 // Each word inherits the board's exact category colours.
@@ -494,14 +530,19 @@ $('combinationsModal').addEventListener('click',event=>{
 document.addEventListener('keydown',event=>{
  if(event.key==='Escape'&&!$('combinationsModal').hidden)closeCombinations();
 });
-function reset(){if(!vocabularyLoaded)return;turnId++;resolvingTurn=false;bricks=[];selection=[];score=0;matches=0;idCounter=0;ended=false;$('overlay').hidden=true;notice.textContent='Select 2–5 related words. Tap a selected brick again to crunch!';
+function reset(){if(!vocabularyLoaded)return;turnId++;const thisTurn=turnId;resolvingTurn=true;arrivingIds.clear();board.querySelectorAll('.brick').forEach(el=>el.remove());bricks=[];selection=[];score=0;matches=0;idCounter=0;ended=false;$('overlay').hidden=true;notice.textContent='Select 2–5 related words. Tap a selected brick again to crunch!';
  // Seed the board with four to six bricks spanning the bottom two rows. Include a match.
  const nounGroups=groups.map((g,i)=>g.family==='noun'?i:null).filter(i=>i!==null);
  const verbGroups=groups.map((g,i)=>g.family==='verb'?i:null).filter(i=>i!==null);
  const options=Math.random()<0.5?nounGroups:verbGroups;
  const group=options[rand(options.length)];
  spawn({group,item:0});spawn({group,item:1});
- for(let i=0;i<5;i++)spawn();compact();render();}
+ for(let i=0;i<5;i++)spawn();compact();
+ showIncomingBricks(new Set(),thisTurn).then(()=>{
+  if(thisTurn!==turnId)return;
+  resolvingTurn=false;
+  render();
+ });}
 // Select the same daily vocabulary worldwide using the date in Germany.
 function todayInGermany(){
  const parts=new Intl.DateTimeFormat('en-GB',{
