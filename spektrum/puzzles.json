@@ -16,7 +16,15 @@
       "Wordle",
       "Studieren",
       "Lesen"
-    ]
+    ], 
+  "translations": {
+    "Lesen": "Reading",
+    "Studieren": "Studying",
+    "Wordle": "Wordle",
+    "Videospiel": "Video game",
+    "Klavier spielen": "Playing the piano",
+    "Hunde ausführen": "Walking dogs"
+    }
   },
   "2026-10-31": {
     "hint": "Zerbrechlichkeit bei Stürzen",
@@ -35,8 +43,17 @@
       "Kokosnuss",
       "Tasse",
       "Ei"
-    ]
+    ],
+  "translations": {
+    "Lego-Stein": "Lego brick",
+    "Fußball": "Football",
+    "Tasche": "Bag",
+    "Kokosnuss": "Coconut",
+    "Tasse": "Cup",
+    "Ei": "Egg"
+    }
   },
+  
   "2026-11-01": {
     "hint": "Grobheit",
     "words": [
@@ -54,8 +71,17 @@
       "Unterbrechen",
       "Lügen",
       "Beleidigen"
-    ]
+    ],
+  "translations": {
+    "Komplimente machen": "Giving compliments",
+    "Lächeln": "Smiling",
+    "Gähnen": "Yawning",
+    "Unterbrechen": "Interrupting",
+    "Lügen": "Lying",
+    "Beleidigen": "Insulting"
+    }
   },
+  
   "2026-11-02": {
     "hint": "Schlimmster Fleck",
     "words": [
@@ -73,6 +99,14 @@
       "Acrylfarbe",
       "Tinte",
       "Bleichen"
-    ]
+    ],
+  "translations": {
+    "Wasser": "Water",
+    "Kaffee": "Coffee",
+    "Senf": "Mustard",
+    "Acrylfarbe": "Acrylic paint",
+    "Tinte": "Ink",
+    "Bleichen": "Bleaching"
+    }
   }
 }
