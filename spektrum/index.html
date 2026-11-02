@@ -134,6 +134,7 @@
   let words = [];
   let answerBottomToTop = [];
   let puzzleHint = '';
+  let puzzleSolution = '';
   let translations = {};
   let translationsRemaining = 3;
   let translationsVisible = false;
@@ -229,7 +230,7 @@
     title.textContent = '✓ You solved the mystery!';
     const detail = document.createElement('div');
     detail.className = 'subtext';
-    detail.textContent = `${puzzleHint} · Solved in ${attempts} ${attempts===1?'attempt':'attempts'}.`;
+    detail.textContent = `${puzzleSolution} · Solved in ${attempts} ${attempts===1?'attempt':'attempts'}.`;
     feedback.append(title, detail);
     // Completed daily puzzles stay completed; reset is unavailable after solving.
     resetButton.disabled = true;
@@ -323,6 +324,7 @@
       words = puzzle.words;
       answerBottomToTop = puzzle.answer;
       puzzleHint = puzzle.hint;
+      puzzleSolution = puzzle.solution || puzzle.hint;
       translations = (puzzle.translations && typeof puzzle.translations==='object' && !Array.isArray(puzzle.translations)) ? puzzle.translations : {};
       hint.textContent = `💡 ${puzzleHint}`;
       placed = [];
