@@ -29,11 +29,10 @@
 <div class="stats"><div class="stat"><small>Score</small><b id="score">0</b></div><div class="stat"><small>Target</small><b id="target">2,000</b></div><div class="stat"><small>Next drop</small><b id="next">+2</b></div></div>
 <div class="progress"><div id="progress"></div></div>
 <div class="board" id="board" aria-label="Vocabulary tile game board"><div class="overlay" id="overlay" hidden><h2 id="endTitle"></h2><p id="endDescription"></p><button class="primary" id="playAgain">Play again</button></div></div>
-<div class="toolbar"><span id="selectionStatus"><small>Select 2–5 related bricks</small></span><button class="primary" id="clear">Clear selection</button></div>
-<div class="notice" id="notice" role="status" aria-live="polite">Select 2–5 related words. Tap a selected brick again to crunch!</div>
+<div class="toolbar"><span id="selectionStatus"><small>Make combos using related words.</small></span><button class="primary" id="clear">Clear selection</button></div>
 <div class="combinations-row"><button id="showCombinations" class="combinations-button" type="button" disabled>Show Combinations</button></div>
-<div class="legend"><span><i class="dot" style="background:#a4ddd7"></i>Main English</span><span><i class="dot" style="background:#eeb0aa"></i>Main Deutsch</span><span><i class="dot" style="background:#bee3b6"></i>Descriptive English</span><span><i class="dot" style="background:#f4df8c"></i>Descriptive Deutsch</span><span><i class="dot" style="background:#bbd9f3"></i>Determiners</span></div>
-<div class="hint">Shared words work with every compatible set. A word can appear at most twice on the board; selecting a brick greys out all other bricks of its colour. Incorrect confirmed matches bring new bricks without clearing any.</div>
+<div class="legend"><span><i class="dot" style="background:#a4ddd7"></i>English Nouns/Verbs</span><span><i class="dot" style="background:#eeb0aa"></i>Deutsch Nouns/Verbs</span><span><i class="dot" style="background:#bee3b6"></i>Descriptive English Words</span><span><i class="dot" style="background:#f4df8c"></i>Descriptive Deutsch Words</span><span><i class="dot" style="background:#bbd9f3"></i>Determiners</span></div>
+<div class="hint">Make bigger combos for more points. You can only select one of each colour.</div>
 <div id="combinationsModal" class="combinations-modal" hidden>
   <section class="combinations-dialog" role="dialog" aria-modal="true" aria-labelledby="combinationsTitle" tabindex="-1">
     <div class="combinations-heading"><h2 id="combinationsTitle">Word Combinations</h2><button id="closeCombinations" class="combinations-close" type="button" aria-label="Close combinations">✕</button></div>
