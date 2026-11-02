@@ -23,17 +23,51 @@
 /* Override absolute game-board positioning and scale the reference bricks down. */
 .combinations-words .brick{position:static;flex:0 0 auto;width:auto;height:auto;min-height:23px;max-width:100%;padding:4px 7px;font-size:11px;border-radius:5px;line-height:1.1;box-shadow:none;cursor:default;transition:none;overflow-wrap:anywhere}
 @media(max-width:500px){.combinations-modal{padding:9px}.combinations-dialog{padding:12px;max-height:88dvh}.combinations-words .brick{font-size:10px;padding:4px 6px;min-height:22px}}
+
+/* Compact game layout and equal-width controls. */
+.game-instructions{font-size:12px;line-height:1.35;color:#526458;margin:0 0 9px}
+.game-buttons{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:9px}
+.game-buttons button{width:100%;min-width:0;min-height:40px;border-radius:10px;padding:8px 5px;font-size:13px;font-weight:700}
+.game-buttons .combinations-button{background:#fff;color:#285f43;border:1px solid #a9c4ac}
+.game-buttons .combinations-button:disabled{opacity:.45;cursor:default}
+#notice[hidden]{display:none}
+@media(max-width:600px) and (orientation:portrait){
+ html,body{width:100%;height:100%;overflow:hidden}
+ body{padding:0}
+ .app{height:100vh;height:100dvh;max-width:none;margin:0;padding:max(7px,env(safe-area-inset-top)) 10px max(7px,env(safe-area-inset-bottom));border:0;border-radius:0;box-shadow:none;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+ header{flex:none;gap:7px}
+ h1{font-size:clamp(20px,3.5dvh,25px)}
+ header button{padding:6px 9px;font-size:12px}
+ .stats{flex:none;gap:6px;margin:7px 0 6px}
+ .stat{padding:4px 3px;border-radius:8px}
+ .stat b{font-size:15px}
+ .stat small{font-size:9px}
+ .progress{flex:none;height:5px;margin-bottom:7px}
+ .game-instructions{flex:none;font-size:clamp(10px,1.65dvh,12px);line-height:1.28;margin-bottom:7px}
+ .board{--cell:calc((100dvh - 240px)/8);flex:1 1 auto;height:auto;min-height:0;overflow:hidden;background-size:calc(100%/5) 12.5%}
+ .brick{font-size:clamp(9px,2.6vw,13px)}
+ .game-buttons{flex:none;gap:7px;margin-top:7px}
+ .game-buttons button{font-size:12px;padding:7px 4px;min-height:34px}
+ .legend{display:flex;flex:none;justify-content:center;gap:4px 9px;flex-wrap:wrap;margin-top:7px;font-size:10px;line-height:1.25}
+ .dot{width:8px;height:8px;margin-right:3px}
+}
+@media(max-width:600px) and (orientation:portrait) and (max-height:660px){
+ .app{padding-top:5px;padding-bottom:5px}
+ .stats{margin:5px 0 4px}.game-instructions{margin-bottom:5px}
+ .game-buttons{margin-top:5px}.game-buttons button{min-height:30px;padding:5px 3px;font-size:11px}
+ .legend{display:flex;margin-top:5px;font-size:9px;gap:3px 7px}
+}
 </style>
 </head><body><main class="app">
 <header><div><h1>Vocab Crunch</h1><small id="theme">Prototype 01 · Haustiere</small></div><button id="restart">↻ Restart</button></header>
 <div class="stats"><div class="stat"><small>Score</small><b id="score">0</b></div><div class="stat"><small>Target</small><b id="target">2,000</b></div><div class="stat"><small>Next drop</small><b id="next">+2</b></div></div>
 <div class="progress"><div id="progress"></div></div>
+<p class="game-instructions">Select 2–5 related words, with no more than one brick of each colour. Tap a selected brick again to crunch your combination and earn points.</p>
 <div class="board" id="board" aria-label="Vocabulary tile game board"><div class="overlay" id="overlay" hidden><h2 id="endTitle"></h2><p id="endDescription"></p><button class="primary" id="playAgain">Play again</button></div></div>
-<div class="toolbar"><span id="selectionStatus"><small>Make combos using related words.</small></span><button class="primary" id="clear">Clear selection</button></div>
-<div id="notice" hidden aria-live="polite"></div>
-<div class="combinations-row"><button id="showCombinations" class="combinations-button" type="button" disabled>Show Combinations</button></div>
+<div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
+<div class="game-buttons"><button class="primary" id="clear">Clear Selection</button><button id="showCombinations" class="combinations-button" type="button" disabled>Show Combinations</button></div>
 <div class="legend"><span><i class="dot" style="background:#a4ddd7"></i>English Nouns/Verbs</span><span><i class="dot" style="background:#eeb0aa"></i>Deutsch Nouns/Verbs</span><span><i class="dot" style="background:#bee3b6"></i>Descriptive English Words</span><span><i class="dot" style="background:#f4df8c"></i>Descriptive Deutsch Words</span><span><i class="dot" style="background:#bbd9f3"></i>Determiners</span></div>
-<div class="hint">Make bigger combos for more points. You can only select one of each colour.</div>
+
 <div id="combinationsModal" class="combinations-modal" hidden>
   <section class="combinations-dialog" role="dialog" aria-modal="true" aria-labelledby="combinationsTitle" tabindex="-1">
     <div class="combinations-heading"><h2 id="combinationsTitle">Word Combinations</h2><button id="closeCombinations" class="combinations-close" type="button" aria-label="Close combinations">✕</button></div>
@@ -414,7 +448,7 @@ function render(){const existing=new Map([...board.querySelectorAll('.brick')].m
  el.disabled=isCategoryBlocked;
  el.setAttribute('aria-disabled',isCategoryBlocked?'true':'false');
  el.textContent=g.items[b.item];el.style.left=`${b.x*cw+2}px`;el.style.top=`${b.y*ch+2}px`;el.style.width=`${b.width*cw-4}px`;el.style.height=`${(ch-4)*1.005}px`;el.setAttribute('aria-pressed',selection.includes(b.id)?'true':'false');}
- for(const el of existing.values())el.remove();$('score').textContent=score.toLocaleString();$('target').textContent=TARGET.toLocaleString();$('next').textContent='+'+nextCount();$('progress').style.width=Math.min(100,score/TARGET*100)+'%';$('selectionStatus').textContent=resolvingTurn?'Bricks falling…':selection.length?`${selection.length} selected`:'Select 2–5 related bricks';$('clear').disabled=resolvingTurn;}
+ for(const el of existing.values())el.remove();$('score').textContent=score.toLocaleString();$('target').textContent=TARGET.toLocaleString();$('next').textContent='+'+nextCount();$('progress').style.width=Math.min(100,score/TARGET*100)+'%';$('clear').disabled=resolvingTurn;}
 // A reference sheet based on the 15 daily JSON groups (not every subset).
 // Each word inherits the board's exact category colours.
 let combinationPreviousFocus=null;
