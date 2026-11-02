@@ -89,7 +89,7 @@
       "Tinte",
       "Wasser",
       "Acrylfarbe",
-      "Bleichen",
+      "Bleichmittel",
       "Kaffee"
     ],
     "answer": [
@@ -98,7 +98,7 @@
       "Senf",
       "Acrylfarbe",
       "Tinte",
-      "Bleichen"
+      "Bleichmittel"
     ],
   "translations": {
     "Wasser": "Water",
@@ -106,7 +106,7 @@
     "Senf": "Mustard",
     "Acrylfarbe": "Acrylic paint",
     "Tinte": "Ink",
-    "Bleichen": "Bleaching"
+    "Bleichmittel": "Bleaching"
     }
   }
 }
