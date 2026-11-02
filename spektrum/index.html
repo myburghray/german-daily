@@ -135,6 +135,7 @@
   let answerBottomToTop = [];
   let puzzleHint = '';
   let puzzleSolution = '';
+  let puzzleHintEnglish = '';
   let translations = {};
   let translationsRemaining = 3;
   let translationsVisible = false;
@@ -183,15 +184,27 @@
       clueRevealed=!!state.clue;
     }catch(error){console.warn('Could not restore hint state:',error)}
   }
-  function showClue(){
-    clueRevealed=true;hint.hidden=false;hintButton.hidden=true;saveHintState();
-  }
+  function updateClueText() {
+  const text = translationsVisible
+    ? puzzleHintEnglish
+    : puzzleHint;
+
+  hint.textContent = `💡 ${text}`;
+}
+  function showClue() {
+  clueRevealed = true;
+  hint.hidden = false;
+  hintButton.hidden = true;
+  updateClueText();
+  saveHintState();
+}
   function stopTranslations(){
     if(translationTimer!==null){clearTimeout(translationTimer);translationTimer=null;}
     translationsVisible=false;render();updateTranslationButton();
   }
   function render() {
-    bank.replaceChildren();
+  updateClueText();
+  bank.replaceChildren();
     for (const word of words) {
       const btn = document.createElement('button');
       btn.type='button'; btn.className='word' + (placed.includes(word)?' used':'');
@@ -324,6 +337,7 @@
       words = puzzle.words;
       answerBottomToTop = puzzle.answer;
       puzzleHint = puzzle.hint;
+      puzzleHintEnglish = puzzle.hintEnglish || puzzle.hint;
       puzzleSolution = puzzle.solution || puzzle.hint;
       translations = (puzzle.translations && typeof puzzle.translations==='object' && !Array.isArray(puzzle.translations)) ? puzzle.translations : {};
       hint.textContent = `💡 ${puzzleHint}`;
