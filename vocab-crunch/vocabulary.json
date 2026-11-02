@@ -4,6 +4,113 @@
     "2026-11-01": "pets",
     "2026-11-02": "cafe"
   },
+  "colourWords": {
+    "MainEnglish": [
+      "dog",
+      "cat",
+      "bark",
+      "barked",
+      "Meow",
+      "Meowed",
+      "bird",
+      "chirp",
+      "Chirped",
+      "sit",
+      "sat",
+      "scratch",
+      "scratched",
+      "fly",
+      "flew",
+      "Cheese",
+      "Fries",
+      "cooked",
+      "cook",
+      "brought",
+      "bring",
+      "ate",
+      "eat",
+      "Salad",
+      "Coffee",
+      "pay",
+      "paid",
+      "Check",
+      "Waiter",
+      "Waitress"
+    ],
+    "MainDeutsch": [
+      "Hund",
+      "Katze",
+      "Bellen",
+      "Bellte",
+      "miau",
+      "miaute",
+      "Vogel",
+      "Zwitchern",
+      "zwitscherte",
+      "Sitzen",
+      "Saß",
+      "Kratz",
+      "Verkratzt",
+      "Fliegen",
+      "Flog",
+      "Käse",
+      "Pommes Frites",
+      "gekocht",
+      "kochen",
+      "gebracht",
+      "Aß",
+      "Essen",
+      "Salat",
+      "Kaffee",
+      "bringen",
+      "bezahlt",
+      "bezahlen",
+      "Rechnung",
+      "Kellner",
+      "Kellnerin"
+    ],
+    "DescriptiveEnglish": [
+      "big",
+      "thin",
+      "loud",
+      "quietly",
+      "small",
+      "happily",
+      "quickly",
+      "nice",
+      "expensive",
+      "in full",
+      "black",
+      "green",
+      "hungrily",
+      "well",
+      "salty",
+      "creamy"
+    ],
+    "DescriptiveDeutsch": [
+      "groß",
+      "dünn",
+      "laut",
+      "leise",
+      "klein",
+      "fröhlich",
+      "ruhig",
+      "schnell",
+      "netter",
+      "teuer",
+      "vollständig",
+      "schwarzer",
+      "grün",
+      "hungrig",
+      "gut",
+      "salzig",
+      "cremig"
+    ],
+    "Determiners": [
+      "der",
+      "die"
+    ]
+  },
   "pools": {
     "pets": {
       "theme": "Haustiere",
@@ -147,110 +254,154 @@
             "quickly"
           ]
         }
-      ],
-      "colourWords": {
-        "MainEnglish": [
-          "dog",
-          "cat",
-          "bark",
-          "barked",
-          "Meow",
-          "Meowed",
-          "bird",
-          "chirp",
-          "Chirped",
-          "sit",
-          "sat",
-          "scratch",
-          "scratched",
-          "fly",
-          "flew"
-        ],
-        "MainDeutsch": [
-          "Hund",
-          "Katze",
-          "Bellen",
-          "Bellte",
-          "miau",
-          "miaute",
-          "Vogel",
-          "Zwitchern",
-          "zwitscherte",
-          "Sitzen",
-          "Saß",
-          "Kratz",
-          "Verkratzt",
-          "Fliegen",
-          "Flog"
-        ],
-        "DescriptiveEnglish": [
-          "big",
-          "thin",
-          "loud",
-          "quietly",
-          "small",
-          "happily",
-          "quickly"
-        ],
-        "DescriptiveDeutsch": [
-          "groß",
-          "dünn",
-          "laut",
-          "leise",
-          "klein",
-          "fröhlich",
-          "ruhig",
-          "schnell"
-        ],
-        "Determiners": [
-          "der",
-          "die"
-        ]
-      }
+      ]
     },
     "cafe": {
-  "theme": "Café",
-  "targetScore": 2000,
-  "groups": [
-    {"family": "noun", "items": ["Kellnerin", "netter", "Waitress", "nice", "die"]},
-    {"family": "noun", "items": ["Kellner", "netter", "Waiter", "nice", "der"]},
-    {"family": "noun", "items": ["Rechnung", "teuer", "Check", "expensive", "die"]},
-    {"family": "verb", "items": ["bezahlen", "pay", "vollständig", "in full"]},
-    {"family": "verb", "items": ["bezahlt", "paid", "vollständig", "in full"]},
-    {"family": "verb", "items": ["bringen", "bring", "schnell", "quickly"]},
-    {"family": "noun", "items": ["Kaffee", "schwarzer", "Coffee", "black", "der"]},
-    {"family": "noun", "items": ["Salat", "grün", "Salad", "green", "der"]},
-    {"family": "verb", "items": ["Essen", "eat", "hungrig", "hungrily"]},
-    {"family": "verb", "items": ["Aß", "ate", "hungrig", "hungrily"]},
-    {"family": "verb", "items": ["gebracht", "brought", "schnell"]},
-    {"family": "verb", "items": ["kochen", "cook", "gut", "well"]},
-    {"family": "verb", "items": ["gekocht", "cooked", "gut", "well"]},
-    {"family": "noun", "items": ["Pommes Frites", "salzig", "Fries", "salty", "die"]},
-    {"family": "noun", "items": ["Käse", "cremig", "Cheese", "creamy", "der"]}
-  ],
-  "colourWords": {
-    "MainEnglish": [
-      "Cheese", "Fries", "cooked", "cook", "brought",
-      "bring", "ate", "eat", "Salad", "Coffee",
-      "pay", "paid", "Check", "Waiter", "Waitress"
-    ],
-    "MainDeutsch": [
-      "Käse", "Pommes Frites", "gekocht", "kochen",
-      "gebracht", "Aß", "Essen", "Salat", "Kaffee",
-      "bringen", "bezahlt", "bezahlen", "Rechnung",
-      "Kellner", "Kellnerin"
-    ],
-    "DescriptiveEnglish": [
-      "nice", "expensive", "in full", "quickly", "black",
-      "green", "hungrily", "well", "salty", "creamy"
-    ],
-    "DescriptiveDeutsch": [
-      "netter", "teuer", "vollständig", "schnell",
-      "schwarzer", "grün", "hungrig", "gut",
-      "salzig", "cremig"
-    ],
-    "Determiners": ["der", "die"]
+      "theme": "Café",
+      "targetScore": 2000,
+      "groups": [
+        {
+          "family": "noun",
+          "items": [
+            "Kellnerin",
+            "netter",
+            "Waitress",
+            "nice",
+            "die"
+          ]
+        },
+        {
+          "family": "noun",
+          "items": [
+            "Kellner",
+            "netter",
+            "Waiter",
+            "nice",
+            "der"
+          ]
+        },
+        {
+          "family": "noun",
+          "items": [
+            "Rechnung",
+            "teuer",
+            "Check",
+            "expensive",
+            "die"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "bezahlen",
+            "pay",
+            "vollständig",
+            "in full"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "bezahlt",
+            "paid",
+            "vollständig",
+            "in full"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "bringen",
+            "bring",
+            "schnell",
+            "quickly"
+          ]
+        },
+        {
+          "family": "noun",
+          "items": [
+            "Kaffee",
+            "schwarzer",
+            "Coffee",
+            "black",
+            "der"
+          ]
+        },
+        {
+          "family": "noun",
+          "items": [
+            "Salat",
+            "grün",
+            "Salad",
+            "green",
+            "der"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "Essen",
+            "eat",
+            "hungrig",
+            "hungrily"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "Aß",
+            "ate",
+            "hungrig",
+            "hungrily"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "gebracht",
+            "brought",
+            "schnell"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "kochen",
+            "cook",
+            "gut",
+            "well"
+          ]
+        },
+        {
+          "family": "verb",
+          "items": [
+            "gekocht",
+            "cooked",
+            "gut",
+            "well"
+          ]
+        },
+        {
+          "family": "noun",
+          "items": [
+            "Pommes Frites",
+            "salzig",
+            "Fries",
+            "salty",
+            "die"
+          ]
+        },
+        {
+          "family": "noun",
+          "items": [
+            "Käse",
+            "cremig",
+            "Cheese",
+            "creamy",
+            "der"
+          ]
+        }
+      ]
     }
-  }
   }
 }
